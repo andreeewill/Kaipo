@@ -7,6 +7,8 @@ import auth0Config from './config/auth0.config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AppService } from './app.service';
       load: [auth0Config],
       validationSchema: validationConfig,
     }),
+    AuthModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
