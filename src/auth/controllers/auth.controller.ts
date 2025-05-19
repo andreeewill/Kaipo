@@ -15,7 +15,6 @@ export class AuthController {
   public async login() {
     this.logger.log('Redirecting to Auth0 login URL');
     this.logger.warn('Redirecting to Auth0 login URL');
-    this.logger.error('Redirecting to Auth0 login URL');
 
     this.authService.getLoginUrl();
   }
