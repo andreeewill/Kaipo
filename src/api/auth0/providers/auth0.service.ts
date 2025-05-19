@@ -12,7 +12,6 @@ export class Auth0Service {
     @Inject(auth0Config.KEY)
     private authConfig: ConfigType<typeof auth0Config>,
 
-    @Inject(AppLogger)
     private readonly logger: AppLogger,
   ) {
     this.baseUrl = this.authConfig.baseUrl;
@@ -20,7 +19,8 @@ export class Auth0Service {
 
   /**
    * Get Auth0 login URL
-   * @description This function returns the login URL for Auth0 that will be used to redirect the user to the Auth0 login page.
+   *
+   * @description returns the login URL for Auth0 that will be used to redirect the user to the Auth0 login page.
    */
   public getLoginUrl(): string {
     this.logger.log('Getting Auth0 login URL');

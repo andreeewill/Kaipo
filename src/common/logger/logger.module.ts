@@ -1,12 +1,15 @@
+import { INQUIRER } from '@nestjs/core';
 import { Module, Global, Scope } from '@nestjs/common';
+
 import { AppLogger } from './app-logger.service';
 import { CorrelationIdService } from './correlation-id.service';
-import { INQUIRER } from '@nestjs/core';
+import { HttpLoggingMiddleware } from './http-logging.middleware';
 
 @Global()
 @Module({
   providers: [
     CorrelationIdService,
+    HttpLoggingMiddleware,
     {
       provide: AppLogger,
       scope: Scope.TRANSIENT,
