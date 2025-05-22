@@ -7,18 +7,29 @@ export class AuthController {
   constructor(
     private readonly logger: AppLogger,
     private readonly authService: Auth0Service,
-  ) {
-    // Set the logger context to the class name
-  }
+  ) {}
 
   @Get('login')
   public async login() {
     this.logger.log('Redirecting to Auth0 login URL');
-    this.logger.warn('Redirecting to Auth0 login URL');
 
-    this.authService.getLoginUrl();
+    const url = this.authService.getLoginUrl('heheh');
+
+    return {
+      url,
+    };
   }
 
   @Get('callback')
-  public async callback() {}
+  public async callback() {
+    console.log('this is callback');
+
+    // TODO: Handle callback error from auth0
+    // 1. when user is not part of organization
+    // 2. when organization is not found
+
+    return {
+      callback: 'hehe this is callback',
+    };
+  }
 }
