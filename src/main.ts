@@ -12,7 +12,6 @@ const instance = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.ms(),
         utilities.format.nestLike('Kaipo App', {
           colors: true,
           prettyPrint: true,
