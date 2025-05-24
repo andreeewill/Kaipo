@@ -3,7 +3,7 @@ import { ConfigType } from '@nestjs/config';
 
 import auth0Config from 'src/config/auth0.config';
 import { AppLogger } from 'src/common/logger/app-logger.service';
-import { url } from 'inspector';
+import { Auth0RequestProvider } from './auth0.request.provider';
 
 @Injectable()
 export class Auth0Service {
@@ -11,11 +11,13 @@ export class Auth0Service {
     @Inject(auth0Config.KEY)
     private authConfig: ConfigType<typeof auth0Config>,
 
+    private readonly auth0RequestProvider: Auth0RequestProvider,
+
     private readonly logger: AppLogger,
   ) {}
 
   /**
-   * Get Auth0 login URL
+   * Get Auth0 login URL.
    *
    * @description returns the login URL for Auth0 that will be used to redirect the user to the Auth0 login page.
    */
@@ -25,11 +27,20 @@ export class Auth0Service {
     const url = new URL(`${this.authConfig.baseUrl}/authorize`);
 
     url.searchParams.append('client_id', this.authConfig.clientId);
+    url.searchParams.append('audience', this.authConfig.audience);
     url.searchParams.append('response_type', 'code');
     url.searchParams.append('redirect_uri', this.authConfig.redirectUri);
     url.searchParams.append('scope', 'openid profile email');
     url.searchParams.append('organization', 'org_WdM3kHvuUApaQCEi');
 
     return url.href;
+  }
+
+  public async getLoginToken(code: string) {
+    this.logger.log('Getting Auth0 login token');
+
+    const token = await this.auth0RequestProvider.getAccessToken(code);
+
+    return token;
   }
 }
