@@ -26,6 +26,8 @@ import { AppController } from './app.controller';
         password: config.password,
         database: config.name,
         synchronize: true,
+        autoLoadEntities: true,
+        logging: true,
       }),
       inject: [databaseConfig.KEY],
     }),

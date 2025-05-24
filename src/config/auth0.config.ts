@@ -6,6 +6,7 @@ import { registerAs } from '@nestjs/config';
  */
 export default registerAs('auth0', () => ({
   baseUrl: process.env.AUTH0_BASE_URL!,
+  audience: process.env.AUTH0_AUDIENCE!,
   clientId: process.env.AUTH0_CLIENT_ID!,
   clientSecret: process.env.AUTH0_CLIENT_SECRET!,
   redirectUri: process.env.AUTH0_REDIRECT_URI!,
