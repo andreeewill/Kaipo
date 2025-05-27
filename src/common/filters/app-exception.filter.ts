@@ -2,7 +2,6 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
-  HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -39,7 +38,8 @@ export class AppExceptionFilter implements ExceptionFilter {
         httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
         operationId: this.correlationIdService.getId(),
         data: {
-          message: 'An unexpected error occurred, please contact support at support@kaipo.id',
+          message:
+            'Terjadi kesalahan pada siste, silahkan hubungi ke support@kaipo.id',
         },
       });
     }

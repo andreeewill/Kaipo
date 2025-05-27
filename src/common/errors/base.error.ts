@@ -1,5 +1,7 @@
 import { HttpException, HttpExceptionOptions } from '@nestjs/common';
 
+export interface BaseErrorDetails {}
+
 export abstract class BaseError extends HttpException {
   constructor(
     response: string | Record<string, any>,
