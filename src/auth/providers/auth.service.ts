@@ -33,6 +33,10 @@ export class AuthService {
     return url;
   }
 
+  /**
+   * Exchange code for access token and id token.
+   * @param code authorization code returned from Auth0
+   */
   public async getLoginToken(code: string) {
     this.logger.log('Getting Auth0 login token');
 

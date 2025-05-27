@@ -7,6 +7,7 @@ import {
   ExtendedOrganizationRepository,
   extendedOrganizationRepository,
 } from '../entities-extender/organization.extend';
+import { GenericError } from 'src/common/errors/generic.error';
 
 @Injectable()
 export class OrganizationRepository {
@@ -28,8 +29,15 @@ export class OrganizationRepository {
    */
   public async getOrganizationIdByName(name: string) {
     const organization = await this.organizationRepository.findByName(name);
+
     if (!organization) {
-      throw new HttpException('Organization not found', HttpStatus.NOT_FOUND);
+      throw new GenericError(
+        {
+          type: 'NOT_FOUND',
+          message: `Invalid organization name of ${name}`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return organization.id;

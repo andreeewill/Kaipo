@@ -2,30 +2,24 @@ import {
   Body,
   Controller,
   Get,
-  Header,
   HttpException,
   HttpStatus,
   Query,
   Req,
+  Res,
 } from '@nestjs/common';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 
-import { Auth0Service } from 'src/api/auth0/providers/auth0.service';
-import { AppLogger } from 'src/common/logger/app-logger.service';
 import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from '../providers/auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly logger: AppLogger,
-
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Get('login')
-  public async login(@Body() loginDto: LoginDto) {
+  public async login(@Res() res: Response, @Body() loginDto: LoginDto) {
     const url = await this.authService.getLoginUrl(loginDto);
 
     return { url };
@@ -46,8 +40,8 @@ export class AuthController {
       );
     }
 
-    console.log('token', token);
-    console.log('payload', payload);
+    // console.log('token', token);
+    // console.log('payload', payload);
 
     // Get organization name and allowed modules from DB
     const organizationId = _.get(payload, 'org_id', null);
