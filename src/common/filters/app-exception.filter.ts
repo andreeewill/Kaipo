@@ -1,0 +1,57 @@
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { CorrelationIdService } from '../logger/correlation-id.service';
+import { BaseError } from '../errors/base.error';
+import { AppLogger } from '../logger/app-logger.service';
+
+/**
+ * Catch all exceptions on application and handle response accordingly. All errors must be inherited from BaseError, otherwise error will be thrown.
+ * @see https://docs.nestjs.com/exception-filters
+ */
+@Catch()
+export class AppExceptionFilter implements ExceptionFilter {
+  constructor(
+    private readonly correlationIdService: CorrelationIdService,
+
+    private readonly logger: AppLogger,
+  ) {}
+
+  catch(exception: Error, host: ArgumentsHost): Response {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+
+    /**
+     * Error must be inherited from BaseError
+     */
+    if (!(exception instanceof BaseError)) {
+      this.logger.error(
+        `Unknown error occured : ${exception.message}`,
+        exception.stack,
+      );
+
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+        operationId: this.correlationIdService.getId(),
+        data: {
+          message: 'An unexpected error occurred, please contact support at support@kaipo.id',
+        },
+      });
+    }
+
+    const httpStatus = exception.getStatus();
+
+    this.logger.error(`${exception.name} : ${exception.getErrorDetailsBE()}`);
+
+    return response.status(httpStatus).json({
+      httpStatus,
+      operationId: this.correlationIdService.getId(),
+      data: exception.getErrorDetailsFE(),
+    });
+  }
+}

@@ -15,11 +15,12 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "./eslint.config.mjs"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "./eslint.config.mjs"],
+  "exclude": ["node_modules", "dist"]
 }

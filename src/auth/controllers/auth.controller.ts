@@ -1,36 +1,62 @@
-import { Controller, Get, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Header,
+  HttpException,
+  HttpStatus,
+  Query,
+  Req,
+} from '@nestjs/common';
+import jwt from 'jsonwebtoken';
+import _ from 'lodash';
+
 import { Auth0Service } from 'src/api/auth0/providers/auth0.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
+import { LoginDto } from '../dtos/login.dto';
+import { AuthService } from '../providers/auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly logger: AppLogger,
 
-    private readonly auth0Service: Auth0Service,
+    private readonly authService: AuthService,
   ) {}
 
   @Get('login')
-  public async login() {
-    this.logger.log('Redirecting to Auth0 login URL');
+  public async login(@Body() loginDto: LoginDto) {
+    const url = await this.authService.getLoginUrl(loginDto);
 
-    const url = this.auth0Service.getLoginUrl('heheh');
-
-    return {
-      url,
-    };
+    return { url };
   }
 
   @Get('callback')
-  public async callback(@Query('code') code: string) {
-    console.log('this is callback');
-
+  public async callback(@Req() req: Request, @Query('code') code: string) {
     // TODO: Handle callback error from auth0
     // 1. when user is not part of organization
     // 2. when organization is not found
-    const token = await this.auth0Service.getLoginToken(code);
+    const token = await this.authService.getLoginToken(code);
+
+    const payload = jwt.decode(token.access_token);
+    if (!payload) {
+      throw new HttpException(
+        'wtf is this token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     console.log('token', token);
+    console.log('payload', payload);
+
+    // Get organization name and allowed modules from DB
+    const organizationId = _.get(payload, 'org_id', null);
+    if (!organizationId) {
+      throw new HttpException(
+        'Organization ID not found in token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return { accessToken: token.access_token, idToken: token.id_token };
   }

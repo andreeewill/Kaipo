@@ -27,6 +27,8 @@ export class Auth0RequestProvider {
       code,
     });
 
+    // handle axios Error
+
     return data;
   }
 }
