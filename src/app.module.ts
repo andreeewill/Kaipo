@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 
 // Config
@@ -12,11 +12,14 @@ import { LoggerModule } from './common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
+import { APP_FILTER } from '@nestjs/core';
+import { AppExceptionFilter } from './common/filters/app-exception.filter';
+import { DbModule } from './common/db/db.module';
 
 @Module({
   imports: [
+    DbModule,
+    LoggerModule,
     TypeOrmModule.forRootAsync({
       useFactory: async (config: ConfigType<typeof databaseConfig>) => ({
         type: 'postgres',
@@ -27,7 +30,7 @@ import { AppController } from './app.controller';
         database: config.name,
         synchronize: true,
         autoLoadEntities: true,
-        logging: true,
+        // logging: true,
       }),
       inject: [databaseConfig.KEY],
     }),
@@ -39,9 +42,8 @@ import { AppController } from './app.controller';
     }),
     AdminModule,
     AuthModule,
-    LoggerModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [{ provide: APP_FILTER, useClass: AppExceptionFilter }],
 })
 export class AppModule {}

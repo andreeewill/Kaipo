@@ -18,7 +18,6 @@ export class Auth0Service {
 
   /**
    * Get Auth0 login URL.
-   *
    * @description returns the login URL for Auth0 that will be used to redirect the user to the Auth0 login page.
    */
   public getLoginUrl(organization: string): string {
@@ -36,6 +35,10 @@ export class Auth0Service {
     return url.href;
   }
 
+  /**
+   * Exchange code for access token and id token.
+   * @param code authorization code returned from Auth0
+   */
   public async getLoginToken(code: string) {
     this.logger.log('Getting Auth0 login token');
 
