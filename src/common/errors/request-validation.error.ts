@@ -6,11 +6,13 @@ import {
 import { ValidationError } from 'class-validator';
 import { set } from 'lodash';
 import { BaseError } from './base.error';
+import moment from 'moment';
 
 export class RequestValidationError extends BaseError {
   public static readonly options: ValidationPipeOptions = {
     transform: true,
     validationError: { target: false },
+    stopAtFirstError: true,
   };
 
   constructor(validationErrors: ValidationError[]) {
@@ -47,6 +49,12 @@ export class RequestValidationError extends BaseError {
   }
 
   public getErrorDetailsFE(): object | string {
-    return this.getResponse();
+    const res = this.getResponse() as object;
+
+    return {
+      code: `${moment().format('MMDDhmmss')}-00000`,
+      message: 'Ada kesalahan pada input yang kamu berikan',
+      ...res,
+    };
   }
 }
