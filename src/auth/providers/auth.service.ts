@@ -44,4 +44,6 @@ export class AuthService {
 
     return token;
   }
+
+  public async handleCallback() {}
 }
