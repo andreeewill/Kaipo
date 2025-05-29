@@ -12,9 +12,10 @@ import { LoggerModule } from './common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppExceptionFilter } from './common/filters/app-exception.filter';
 import { DbModule } from './common/db/db.module';
+import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
 
 @Module({
   imports: [
@@ -44,6 +45,9 @@ import { DbModule } from './common/db/db.module';
     AuthModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_FILTER, useClass: AppExceptionFilter }],
+  providers: [
+    { provide: APP_FILTER, useClass: AppExceptionFilter },
+    { provide: APP_INTERCEPTOR, useClass: AppRequestInterceptor },
+  ],
 })
 export class AppModule {}

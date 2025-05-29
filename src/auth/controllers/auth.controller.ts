@@ -1,3 +1,6 @@
+import { Response } from 'express';
+import _ from 'lodash';
+import jwt from 'jsonwebtoken';
 import {
   Body,
   Controller,
@@ -8,8 +11,6 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
-import _ from 'lodash';
 
 import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from '../providers/auth.service';
@@ -19,10 +20,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('login')
-  public async login(@Res() res: Response, @Body() loginDto: LoginDto) {
+  public async login(
+    @Res({ passthrough: true }) res: Response,
+    @Body() loginDto: LoginDto,
+  ) {
     const url = await this.authService.getLoginUrl(loginDto);
 
-    return { url };
+    return loginDto.redirect ? res.redirect(url) : { url };
   }
 
   @Get('callback')
@@ -39,9 +43,6 @@ export class AuthController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    // console.log('token', token);
-    // console.log('payload', payload);
 
     // Get organization name and allowed modules from DB
     const organizationId = _.get(payload, 'org_id', null);

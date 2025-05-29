@@ -24,7 +24,10 @@ export class GenericError extends BaseError {
   getErrorDetailsBE(): object | string {
     const res = this.getResponse() as GenericErrorOptions;
 
-    return JSON.stringify(this.getResponse());
+    return JSON.stringify({
+      errorCode: GenericErrorCode[res.type].code,
+      ...res,
+    });
   }
 
   getErrorDetailsFE(): object | string {
@@ -32,7 +35,7 @@ export class GenericError extends BaseError {
 
     return {
       ...res,
-      type: undefined,
+      type: undefined, // override type
       code: `${moment().format('MMDDhmmss')}-${GenericErrorCode[res.type].code}`,
       message: GenericErrorCode[res.type].message,
     };
