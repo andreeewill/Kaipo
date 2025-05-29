@@ -16,6 +16,7 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppExceptionFilter } from './common/filters/app-exception.filter';
 import { DbModule } from './common/db/db.module';
 import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
+import { RequestModule } from './common/request/request.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AppRequestInterceptor } from './common/interceptors/app-request.interce
       load: [auth0Config, databaseConfig],
       validationSchema: validationConfig,
     }),
+    RequestModule,
     AdminModule,
     AuthModule,
   ],
