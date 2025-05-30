@@ -31,7 +31,7 @@ export class Auth0Service {
     url.searchParams.append('redirect_uri', this.authConfig.redirectUri);
     url.searchParams.append('scope', 'openid profile email');
     url.searchParams.append('organization', organizationId);
-    url.searchParams.append('prompt', 'login');
+    url.searchParams.append('prompt', 'login'); // tell to always show login screen
 
     return url.href;
   }

@@ -25,10 +25,12 @@ export class AppExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    const isUnknownError = !(exception instanceof BaseError);
+
     /**
      * Error must be inherited from BaseError
      */
-    if (!(exception instanceof BaseError)) {
+    if (isUnknownError) {
       this.logger.error(
         `Unknown error occured : ${exception.message}`,
         exception.stack,
@@ -39,7 +41,7 @@ export class AppExceptionFilter implements ExceptionFilter {
         operationId: this.correlationIdService.getId(),
         data: {
           message:
-            'Terjadi kesalahan pada siste, silahkan hubungi ke support@kaipo.id',
+            'Terjadi kesalahan pada sistem, silahkan hubungi ke support@kaipo.id',
         },
       });
     }
@@ -47,6 +49,20 @@ export class AppExceptionFilter implements ExceptionFilter {
     const httpStatus = exception.getStatus();
 
     this.logger.error(`${exception.name} : ${exception.getErrorDetailsBE()}`);
+
+    /**
+     * Handle system error (500+). Should not expose error details to user
+     */
+    if (httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      return response.status(httpStatus).json({
+        httpStatus: httpStatus,
+        operationId: this.correlationIdService.getId(),
+        data: {
+          message:
+            'Terjadi kesalahan pada sistem, silahkan hubungi ke support@kaipo.id',
+        },
+      });
+    }
 
     return response.status(httpStatus).json({
       httpStatus,

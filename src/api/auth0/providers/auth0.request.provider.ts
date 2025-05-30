@@ -1,10 +1,9 @@
-import axios from 'axios';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 
 import auth0Config from 'src/config/auth0.config';
 import { GetAccessTokenResponse } from '../interfaces/get-access-token-response.interface';
-import { HttpError, RequestService } from 'src/common/request/request.service';
+import { RequestService } from 'src/common/request/request.service';
 
 @Injectable()
 export class Auth0RequestProvider {
@@ -22,19 +21,16 @@ export class Auth0RequestProvider {
   public async getAccessToken(code: string) {
     const url = new URL(`${this.authConfig.baseUrl}/oauth/token`);
 
-    const { data } = await this.request.instance
-      .post<GetAccessTokenResponse>(url.href, {
+    const { data } = await this.request.instance.post<GetAccessTokenResponse>(
+      url.href,
+      {
         grant_type: 'authorization_code',
         client_id: this.authConfig.clientId,
         client_secret: this.authConfig.clientSecret,
         redirect_uri: this.authConfig.redirectUri, // must match wtih the one in login url
         code,
-      })
-      .catch((e: HttpError) => {
-        console.log(e);
-        throw e;
-      });
-    // handle axios Error
+      },
+    );
 
     return data;
   }
