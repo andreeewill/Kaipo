@@ -20,6 +20,7 @@ export class AppRequestInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler) {
     const start = process.hrtime.bigint();
+
     const res = context.switchToHttp().getResponse<Response>();
     const req = context.switchToHttp().getRequest<Request>();
 

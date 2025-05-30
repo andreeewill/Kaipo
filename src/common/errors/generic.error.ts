@@ -12,8 +12,8 @@ export const GenericErrorCode = {
 
 interface GenericErrorOptions {
   type: keyof typeof GenericErrorCode;
-  message: string;
-  details?: string;
+  message?: string;
+  reason?: any; // backend details for logging
 }
 
 export class GenericError extends BaseError {
@@ -36,8 +36,9 @@ export class GenericError extends BaseError {
     return {
       ...res,
       type: undefined, // override type
+      reason: undefined,
       code: `${moment().format('MMDDhmmss')}-${GenericErrorCode[res.type].code}`,
-      message: GenericErrorCode[res.type].message,
+      message: res.message || GenericErrorCode[res.type].message,
     };
   }
 }

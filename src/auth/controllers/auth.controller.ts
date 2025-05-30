@@ -14,6 +14,7 @@ import {
 
 import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from '../providers/auth.service';
+import { GenericError } from 'src/common/errors/generic.error';
 
 @Controller('auth')
 export class AuthController {
@@ -30,11 +31,25 @@ export class AuthController {
   }
 
   @Get('callback')
-  public async callback(@Req() req: Request, @Query('code') code: string) {
+  public async callback(@Req() req: Request, @Query() query: any) {
     // TODO: Handle callback error from auth0
     // 1. when user is not part of organization
-    // 2. when organization is not found
-    const token = await this.authService.getLoginToken(code);
+    console.log('QUERY', query);
+    if (!query.code) {
+      // Identify why code is missing
+      if (/is not part/.test(query?.error_description)) {
+        throw new GenericError(
+          {
+            type: 'NOT_FOUND',
+            message: 'Akunmu tidak terdaftar dalam organisasi ini',
+            reason: query,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    const token = await this.authService.getLoginToken('');
 
     const payload = jwt.decode(token.access_token);
     if (!payload) {
