@@ -13,7 +13,7 @@ export const GenericErrorCode = {
 interface GenericErrorOptions {
   type: keyof typeof GenericErrorCode;
   message?: string;
-  reason?: any; // backend details for logging
+  reason?: Record<string, any>; // backend details for logging
 }
 
 export class GenericError extends BaseError {

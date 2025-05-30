@@ -16,6 +16,7 @@ interface RequestError {
   request: ClientRequest;
   config: any;
 }
+
 interface GeneralError {
   type: 'general';
   message: string;
@@ -45,7 +46,7 @@ export class RequestService {
             headers: error.response.headers,
             message: error.message,
             config: error.config,
-          });
+          } as HttpError);
         } else if (error.request) {
           // No response received
           return Promise.reject({
@@ -53,14 +54,14 @@ export class RequestService {
             message: 'No response received from server',
             request: error.request,
             config: error.config,
-          });
+          } as HttpError);
         } else {
           // Something else happened
           return Promise.reject({
             type: 'general',
             message: error.message,
             config: error.config,
-          });
+          } as HttpError);
         }
       },
     );
