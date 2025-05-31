@@ -17,8 +17,8 @@ interface GenericErrorOptions {
 }
 
 export class GenericError extends BaseError {
-  constructor(options: GenericErrorOptions, httpError: HttpStatus) {
-    super(options, httpError);
+  constructor(options: GenericErrorOptions, httpStatus: HttpStatus) {
+    super(options, httpStatus);
   }
 
   getErrorDetailsBE(): object | string {

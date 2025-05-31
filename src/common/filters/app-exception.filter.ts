@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   ArgumentsHost,
   Catch,
@@ -5,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+
 import { CorrelationIdService } from '../logger/correlation-id.service';
 import { BaseError } from '../errors/base.error';
 import { AppLogger } from '../logger/app-logger.service';
@@ -40,6 +42,7 @@ export class AppExceptionFilter implements ExceptionFilter {
         httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
         operationId: this.correlationIdService.getId(),
         data: {
+          code: `${moment().format('MMDDhmmss')}-x0001`,
           message:
             'Terjadi kesalahan pada sistem, silahkan hubungi ke support@kaipo.id',
         },
@@ -58,6 +61,7 @@ export class AppExceptionFilter implements ExceptionFilter {
         httpStatus: httpStatus,
         operationId: this.correlationIdService.getId(),
         data: {
+          code: `${moment().format('MMDDhmmss')}-x0002`,
           message:
             'Terjadi kesalahan pada sistem, silahkan hubungi ke support@kaipo.id',
         },
