@@ -2,29 +2,6 @@ import { ClientRequest } from 'http';
 import axios, { AxiosInstance } from 'axios';
 import { Injectable } from '@nestjs/common';
 
-interface ResponseError<T> {
-  type: 'response';
-  status: number;
-  data: T;
-  headers: any;
-  message: string;
-  config: any;
-}
-interface RequestError {
-  type: 'request';
-  message: string;
-  request: ClientRequest;
-  config: any;
-}
-
-interface GeneralError {
-  type: 'general';
-  message: string;
-  config: any;
-}
-
-export type HttpError<T = any> = ResponseError<T> | RequestError | GeneralError;
-
 @Injectable()
 export class RequestService {
   private axiosInstance: AxiosInstance;
@@ -46,7 +23,7 @@ export class RequestService {
             headers: error.response.headers,
             message: error.message,
             config: error.config,
-          } as HttpError);
+          });
         } else if (error.request) {
           // No response received
           return Promise.reject({
@@ -54,14 +31,14 @@ export class RequestService {
             message: 'No response received from server',
             request: error.request,
             config: error.config,
-          } as HttpError);
+          });
         } else {
           // Something else happened
           return Promise.reject({
             type: 'general',
             message: error.message,
             config: error.config,
-          } as HttpError);
+          });
         }
       },
     );

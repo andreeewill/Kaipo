@@ -1,5 +1,13 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { User } from './user.entity';
+import { Branch } from './branch.entity';
 
 export enum Status {
   ACTIVE = 'active',
@@ -21,4 +29,7 @@ export class Organization {
   @OneToOne(() => User)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+
+  @OneToMany(() => Branch, (branch) => branch.organization)
+  branches: Branch[];
 }
