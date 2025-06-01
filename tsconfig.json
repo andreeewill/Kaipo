@@ -21,6 +21,6 @@
     "esModuleInterop": true,
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.js"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.mjs"],
   "exclude": ["node_modules", "dist"]
 }

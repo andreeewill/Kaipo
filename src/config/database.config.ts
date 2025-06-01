@@ -1,5 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { DatabaseType } from 'typeorm';
 
 export default registerAs('database', () => ({
   type: process.env.DB_TYPE!,

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import jwt from 'jsonwebtoken';
 

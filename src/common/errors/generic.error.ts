@@ -21,6 +21,7 @@ interface GenericErrorOptions {
 }
 
 export class GenericError extends BaseError {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(options: GenericErrorOptions, httpStatus: HttpStatus) {
     super(options, httpStatus);
   }
