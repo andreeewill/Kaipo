@@ -1,31 +1,26 @@
-// @ts-check
 import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
-import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 /** @type {any} */
 const config = tseslint.config(
-  {
-    ignores: ['eslint.config.mjs'],
-  },
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.strict,
+  tseslint.configs.stylistic,
+  eslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
     plugins: {
       prettier: eslintPluginPrettier,
     },
+  },
+  {
     languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.jest,
-      },
-      sourceType: 'commonjs',
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: new URL('.', import.meta.url).pathname,
+        tsconfigRootDir: __dirname,
       },
     },
   },
@@ -38,5 +33,3 @@ const config = tseslint.config(
     },
   },
 );
-
-export default config;

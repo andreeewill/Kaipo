@@ -1,4 +1,6 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 
 // Config
@@ -10,13 +12,12 @@ import databaseConfig from './config/database.config';
 import { AuthModule } from './auth/auth.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { AppExceptionFilter } from './common/filters/app-exception.filter';
-import { DbModule } from './common/db/db.module';
-import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
 import { RequestModule } from './common/request/request.module';
+import { DbModule } from './common/db/db.module';
+
+// Misc
+import { AppExceptionFilter } from './common/filters/app-exception.filter';
+import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { RequestModule } from './common/request/request.module';
       load: [auth0Config, databaseConfig],
       validationSchema: validationConfig,
     }),
-    RequestModule,
+    RequestModule, // only used as a side effect to HttpModule
     AdminModule,
     AuthModule,
   ],
