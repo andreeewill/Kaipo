@@ -8,6 +8,10 @@ export const GenericErrorCode = {
     code: '00001',
     message: 'Hal yang kamu cari tidak dapat ditemukan :(',
   },
+  UNAUTHORIZED: {
+    code: '00002',
+    message: 'Kamu tidak memiliki akses untuk melakukan ini',
+  },
 } as const;
 
 interface GenericErrorOptions {

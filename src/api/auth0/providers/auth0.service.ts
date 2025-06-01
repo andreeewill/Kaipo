@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 
 import auth0Config from 'src/config/auth0.config';
 import { AppLogger } from 'src/common/logger/app-logger.service';
 import { Auth0RequestProvider } from './auth0.request.provider';
+import { GenericError } from 'src/common/errors/generic.error';
 
 @Injectable()
 export class Auth0Service {
@@ -46,5 +47,30 @@ export class Auth0Service {
     const token = await this.auth0RequestProvider.getAccessToken(code);
 
     return token;
+  }
+
+  /**
+   * Get access tokenn public key from Auth0 JWKS for verifying JWTs.
+   * @param kid key ID of the public key
+   */
+  public async getPublicKey(kid: string) {
+    this.logger.log(`Getting Auth0 public key for kid: ${kid}`);
+
+    const jwks = await this.auth0RequestProvider.getJWKS();
+    const key = jwks.find((k) => k.kid === kid);
+
+    if (!key) {
+      throw new GenericError(
+        {
+          type: 'NOT_FOUND',
+          reason: {
+            message: `Public key with kid ${kid} not found in Auth0 JWKS`,
+          },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return key;
   }
 }

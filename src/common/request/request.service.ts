@@ -1,16 +1,15 @@
-import { ClientRequest } from 'http';
-import axios, { AxiosInstance } from 'axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
-export class RequestService {
-  private axiosInstance: AxiosInstance;
+export class RequestService implements OnModuleInit {
+  constructor(private readonly httpService: HttpService) {}
 
-  constructor() {
-    this.axiosInstance = axios.create();
+  onModuleInit() {
+    const axios = this.httpService.axiosRef;
 
     // Attach interceptors
-    this.axiosInstance.interceptors.response.use(
+    axios.interceptors.response.use(
       (response) => response,
       (error) => {
         // Handle all types of axios errors
@@ -42,12 +41,5 @@ export class RequestService {
         }
       },
     );
-  }
-
-  /**
-   * Get original axios instance
-   */
-  get instance() {
-    return this.axiosInstance;
   }
 }
