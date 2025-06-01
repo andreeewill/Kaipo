@@ -7,7 +7,7 @@ export class RedisCoreModule implements OnModuleDestroy {
     console.log('RedisCoreModule is being destroyed');
   }
 
-  static register() {}
+  // static register() {}
 
   // static
 }

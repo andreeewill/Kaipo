@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 
 export class AuthGuard implements CanActivate {
-  constructor() {}
+  // constructor() {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();

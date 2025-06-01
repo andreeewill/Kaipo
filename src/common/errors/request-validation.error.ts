@@ -1,8 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  ValidationPipeOptions,
-} from '@nestjs/common';
+import { HttpStatus, ValidationPipeOptions } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { set } from 'lodash';
 import { BaseError } from './base.error';
@@ -35,7 +31,6 @@ export class RequestValidationError extends BaseError {
       if (error.children && error.children.length > 0) {
         error.children.forEach((err) => traverse(err, key));
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         set(output, key, Object.values(error.constraints!));
       }
     }
