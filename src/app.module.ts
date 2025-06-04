@@ -1,4 +1,4 @@
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigType } from '@nestjs/config';
@@ -18,6 +18,7 @@ import { DbModule } from './common/db/db.module';
 // Misc
 import { AppExceptionFilter } from './common/filters/app-exception.filter';
 import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
+import { AuthGuard } from './common/guards/auth.guard';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { AppRequestInterceptor } from './common/interceptors/app-request.interce
   providers: [
     { provide: APP_FILTER, useClass: AppExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: AppRequestInterceptor },
+    { provide: APP_GUARD, useClass: AuthGuard },
   ],
 })
 export class AppModule {}

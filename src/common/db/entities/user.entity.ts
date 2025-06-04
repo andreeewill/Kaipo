@@ -5,12 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-export enum UserRole {
-  OWNER = 'owner',
-  ADMIN = 'admin',
-  DOCTOR = 'doctor',
-}
+import { UserRole } from 'src/common/types/auth.type';
 
 @Entity({ schema: 'public' })
 export class User {
