@@ -1,22 +1,51 @@
+import { Request } from 'express';
+import { Reflector } from '@nestjs/core';
 import {
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 
+import { AppLogger } from '../logger/app-logger.service';
+import { ROLES_KEY } from '../constants/decorator-key.constant';
+import { GenericError } from '../errors/generic.error';
+
+@Injectable()
 export class AuthGuard implements CanActivate {
-  // constructor() {}
+  constructor(
+    private readonly logger: AppLogger,
+
+    private readonly reflector: Reflector,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    this.logger.log('AuthGuard: Checking authentication');
+
+    const request = context.switchToHttp().getRequest<Request>();
 
     // Skip public routes
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
 
-    // Check if the user is authenticated
-    if (!user) {
-      throw new UnauthorizedException('User not authenticated');
-    }
+    // Verify access token and expiration
+    // const accessToken = request.headers?.authorization?.split(' ')[1];
+    // if (!accessToken) {
+    //   throw new GenericError(
+    //     {
+    //       type: 'UNAUTHORIZED',
+    //       message: '',
+    //     },
+    //     HttpStatus.UNAUTHORIZED,
+    //   );
+    // }
+
+    // const roles = this.reflector.get(ROLES_KEY, context.getHandler());
+
+    // const permissoions = this.reflector.getAllAndMerge();
 
     // Optionally, you can check user roles or permissions here
     // For example, if you want to allow only admins:

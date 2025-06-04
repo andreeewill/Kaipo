@@ -1,7 +1,7 @@
 import { applyDecorators, SetMetadata } from '@nestjs/common';
+import { ROLES_KEY } from '../constants/decorator-key.constant';
+import { UserRole } from '../types/auth.type';
 
-const ROLES_KEY = 'roles';
-
-export const Roles = () => {
-  return applyDecorators(SetMetadata(ROLES_KEY, true));
+export const Roles = (roles: UserRole[]) => {
+  return applyDecorators(SetMetadata(ROLES_KEY, roles));
 };
