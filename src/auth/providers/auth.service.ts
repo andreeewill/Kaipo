@@ -1,10 +1,12 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import jwt from 'jsonwebtoken';
 
+// Providers
 import { Auth0Service } from 'src/api/auth0/providers/auth0.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
-import { LoginDto } from '../dtos/login.dto';
 import { OrganizationRepository } from 'src/common/db/repositories/organization.repository';
+
+import { LoginDto } from '../dtos/login.dto';
 import { GenericError } from 'src/common/errors/generic.error';
 
 @Injectable()
@@ -49,7 +51,8 @@ export class AuthService {
             type: 'NOT_FOUND',
             message: 'Akunmu tidak terdaftar dalam organisasi ini',
             reason: {
-              reason: query,
+              message: 'user is not part of the organization',
+              queryStringFromAuth0: query,
             },
           },
           HttpStatus.BAD_REQUEST,
