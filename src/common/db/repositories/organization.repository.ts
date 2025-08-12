@@ -2,11 +2,13 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
+// Entities
 import { Organization } from '../entities/organization.entity';
 import {
   ExtendedOrganizationRepository,
   extendedOrganizationRepository,
 } from '../entities-extender/organization.extend';
+
 import { GenericError } from 'src/common/errors/generic.error';
 
 @Injectable()
@@ -34,7 +36,7 @@ export class OrganizationRepository {
       throw new GenericError(
         {
           type: 'NOT_FOUND',
-          message: `Invalid organization name of ${name}`,
+          message: `Nama organisasi tidak ditemukan :(`,
         },
         HttpStatus.NOT_FOUND,
       );

@@ -14,6 +14,7 @@ import { LoggerModule } from './common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { RequestModule } from './common/request/request.module';
 import { DbModule } from './common/db/db.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 // Misc
 import { AppExceptionFilter } from './common/filters/app-exception.filter';
@@ -47,6 +48,7 @@ import { AuthGuard } from './common/guards/auth.guard';
     RequestModule, // only used as a side effect to HttpModule
     AdminModule,
     AuthModule,
+    AppointmentModule,
   ],
   controllers: [],
   providers: [

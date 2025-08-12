@@ -40,7 +40,7 @@ export class GenericError extends BaseError {
 
     return {
       ...res,
-      type: undefined, // override type
+      type: undefined, // Hide type from frontend
       reason: undefined,
       code: `${moment().format('MMDDhmmss')}-${GenericErrorCode[res.type].code}`,
       message: res.message || GenericErrorCode[res.type].message,
