@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 // Providers
 import { Auth0Service } from 'src/api/auth0/providers/auth0.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
-import { OrganizationRepository } from 'src/common/db/repositories/organization.repository';
+import { OrganizationRepository } from 'src/db/repositories/organization.repository';
 
 import { LoginDto } from '../dtos/login.dto';
 import { GenericError } from 'src/common/errors/generic.error';

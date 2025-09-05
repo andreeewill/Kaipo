@@ -13,13 +13,13 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerModule } from '../common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { RequestModule } from '../common/request/request.module';
-import { DbModule } from '../common/db/db.module';
+import { DbModule } from '../db/db.module';
 import { AppointmentModule } from './auth/appointment/appointment.module';
 
 // Misc
-import { AppExceptionFilter } from '../common/filters/app-exception.filter';
-import { AppRequestInterceptor } from '../common/interceptors/app-request.interceptor';
-import { AuthGuard } from '../common/guards/auth.guard';
+import { AppExceptionFilter } from '../filters/app-exception.filter';
+import { AppRequestInterceptor } from '../interceptors/app-request.interceptor';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Module({
   imports: [

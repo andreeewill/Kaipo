@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-import { CorrelationIdService } from '../logger/correlation-id.service';
-import { BaseError } from '../errors/base.error';
-import { AppLogger } from '../logger/app-logger.service';
+import { CorrelationIdService } from '../common/logger/correlation-id.service';
+import { BaseError } from '../common/errors/base.error';
+import { AppLogger } from '../common/logger/app-logger.service';
 
 /**
  * Catch all exceptions on application and handle response accordingly. All errors must be inherited from BaseError, otherwise error will be thrown.
