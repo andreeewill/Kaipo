@@ -7,8 +7,8 @@ import {
 import { Request, Response } from 'express';
 import { map, tap } from 'rxjs/operators';
 
-import { AppLogger } from '../logger/app-logger.service';
-import { CorrelationIdService } from '../logger/correlation-id.service';
+import { AppLogger } from '../common/logger/app-logger.service';
+import { CorrelationIdService } from '../common/logger/correlation-id.service';
 
 @Injectable()
 export class AppRequestInterceptor implements NestInterceptor {

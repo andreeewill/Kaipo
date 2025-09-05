@@ -8,13 +8,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { AppLogger } from '../logger/app-logger.service';
+import { AppLogger } from '../common/logger/app-logger.service';
 import {
   PERMISSIONS_KEY,
   ROLES_KEY,
-} from '../constants/decorator-key.constant';
-import { GenericError } from '../errors/generic.error';
-import { UserRole } from '../types/auth.type';
+} from '../common/constants/decorator-key.constant';
+import { GenericError } from '../common/errors/generic.error';
+import { UserRole } from '../common/types/auth.type';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

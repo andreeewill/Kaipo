@@ -1,7 +1,7 @@
 import { Controller, Post } from '@nestjs/common';
 
 import { PERMISSION } from 'src/common/constants/permission.constant';
-import { Permissions } from 'src/common/decorators/permissions.decorator';
+import { Permissions } from 'src/decorators/permissions.decorator';
 
 import { AppointmentService } from '../providers/apppoitment.service';
 
