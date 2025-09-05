@@ -4,22 +4,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 
 // Config
-import validationConfig from './config/validation.config';
-import auth0Config from './config/auth0.config';
-import databaseConfig from './config/database.config';
+import validationConfig from '../config/validation.config';
+import auth0Config from '../config/auth0.config';
+import databaseConfig from '../config/database.config';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
-import { LoggerModule } from './common/logger/logger.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
-import { RequestModule } from './common/request/request.module';
-import { DbModule } from './common/db/db.module';
-import { AppointmentModule } from './appointment/appointment.module';
+import { RequestModule } from '../common/request/request.module';
+import { DbModule } from '../common/db/db.module';
+import { AppointmentModule } from './auth/appointment/appointment.module';
 
 // Misc
-import { AppExceptionFilter } from './common/filters/app-exception.filter';
-import { AppRequestInterceptor } from './common/interceptors/app-request.interceptor';
-import { AuthGuard } from './common/guards/auth.guard';
+import { AppExceptionFilter } from '../common/filters/app-exception.filter';
+import { AppRequestInterceptor } from '../common/interceptors/app-request.interceptor';
+import { AuthGuard } from '../common/guards/auth.guard';
 
 @Module({
   imports: [

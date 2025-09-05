@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
 import { ValidationError } from 'class-validator';
 
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { CorrelationIdService } from './common/logger/correlation-id.service';
 import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
 import { RequestValidationError } from './common/errors/request-validation.error';
