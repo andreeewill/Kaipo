@@ -12,6 +12,10 @@ export const GenericErrorCode = {
     code: '00002',
     message: 'Kamu tidak memiliki akses untuk melakukan ini',
   },
+  FORBIDDEN: {
+    code: '00003',
+    message: 'Akses ditolak',
+  },
 } as const;
 
 interface GenericErrorOptions {

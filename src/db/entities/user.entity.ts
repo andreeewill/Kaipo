@@ -15,24 +15,17 @@ export class User {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ name: 'user_name', unique: true })
-  userName: string;
-
   @Column()
   email: string;
 
   @Column()
   dob: Date;
 
-  @Column({ name: 'contact_info' })
-  contactInfo: string;
+  @Column({ name: 'phone_number' })
+  phoneNumber: string;
 
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    nullable: false,
-  })
-  role: UserRole;
+  @Column({ nullable: true })
+  password: string;
 
   @UpdateDateColumn()
   updatedAt: Date;
