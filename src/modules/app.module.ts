@@ -4,9 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 
 // Config
+import appConfig from 'src/config/app.config';
 import validationConfig from '../config/validation.config';
 import auth0Config from '../config/auth0.config';
 import databaseConfig from '../config/database.config';
+import googleConfig from 'src/config/google.config';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
@@ -14,12 +16,15 @@ import { LoggerModule } from '../common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { RequestModule } from '../common/request/request.module';
 import { DbModule } from '../db/db.module';
-import { AppointmentModule } from './auth/appointment/appointment.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 // Misc
 import { AppExceptionFilter } from '../filters/app-exception.filter';
 import { AppRequestInterceptor } from '../interceptors/app-request.interceptor';
 import { AuthGuard } from '../guards/auth.guard';
+import { OwnerModule } from './owner/owner.module';
+import { CasbinModule } from 'src/api/casbin/casbin.module';
+import { UtilModule } from 'src/common/util/util.module';
 
 @Module({
   imports: [
@@ -33,7 +38,7 @@ import { AuthGuard } from '../guards/auth.guard';
         username: config.user,
         password: config.password,
         database: config.name,
-        synchronize: true,
+        synchronize: true, // Should be turned off on production
         autoLoadEntities: true,
         // logging: true,
       }),
@@ -42,13 +47,16 @@ import { AuthGuard } from '../guards/auth.guard';
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      load: [auth0Config, databaseConfig],
+      load: [appConfig, auth0Config, databaseConfig, googleConfig],
       validationSchema: validationConfig,
     }),
     RequestModule, // only used as a side effect to HttpModule
+    UtilModule,
     AdminModule,
     AuthModule,
     AppointmentModule,
+    OwnerModule,
+    CasbinModule,
   ],
   controllers: [],
   providers: [

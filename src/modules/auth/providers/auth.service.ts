@@ -8,13 +8,22 @@ import { OrganizationRepository } from 'src/db/repositories/organization.reposit
 
 import { LoginDto } from '../dtos/login.dto';
 import { GenericError } from 'src/common/errors/generic.error';
+import { GoogleService } from 'src/api/google/providers/google.service';
+import { UserRepository } from 'src/db/repositories/user.repository';
+import { CryptoService } from 'src/common/util/providers/crypto.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
 
+    private readonly userRepository: UserRepository,
+
     private readonly auth0Service: Auth0Service,
+
+    private readonly cryptoService: CryptoService,
+
+    private readonly googleService: GoogleService,
 
     private readonly logger: AppLogger,
   ) {}
@@ -22,6 +31,7 @@ export class AuthService {
   /**
    * Get Auth0 login URL.
    * @param loginDto
+   * @deprecated
    */
   public async getLoginUrl(loginDto: LoginDto) {
     const organizationId =
@@ -40,6 +50,7 @@ export class AuthService {
   /**
    * Handle callback from Auth0 after user is redirected back to the application.
    * @param query
+   * @deprecated
    */
   public async handleCallback(query: any) {
     this.logger.log('Handling Auth0 callback');
@@ -90,5 +101,30 @@ export class AuthService {
     }
     console.log(token);
     return token;
+  }
+
+  public getGoogleLoginUrl(): string {
+    return this.googleService.getGoogleAuthUrl();
+  }
+
+  public async loginBasic(email: string, password: string) {
+    const user = await this.userRepository.getByEmail(email);
+
+    // Compare password
+    if (!user || password !== user?.password) {
+      throw new GenericError(
+        {
+          type: 'NOT_FOUND',
+          message: 'Kombinasi email dan password tidak dapat ditemukan',
+          reason: {
+            message: 'User not found or incorrect password',
+            isUserExist: !!user,
+          },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // compare password (need to be hashed)
   }
 }
