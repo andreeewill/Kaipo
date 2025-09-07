@@ -7,6 +7,9 @@ export interface ExtendedUserRepository extends Repository<User> {
 
 export const extendedUserRepository = {
   findByEmail(this: Repository<User>, email: string): Promise<User | null> {
-    return this.findOne({ where: { email } });
+    return this.findOne({
+      where: { email },
+      relations: { organization: true },
+    });
   },
 };

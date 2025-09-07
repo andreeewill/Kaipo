@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from 'src/common/types/auth.type';
+import { Organization } from './organization.entity';
 
 @Entity({ schema: 'public' })
 export class User {
@@ -32,4 +35,8 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToOne(() => Organization, { nullable: false })
+  @JoinColumn()
+  organization: Organization;
 }

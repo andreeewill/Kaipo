@@ -26,13 +26,24 @@ export class AppRequestInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
-        if (!res.headersSent) {
+        if (res.headersSent) return data;
+
+        // Only map if data is a plain object (JSON)
+        const isJson =
+          data &&
+          typeof data === 'object' &&
+          !Buffer.isBuffer(data) &&
+          !(data instanceof ArrayBuffer);
+
+        if (isJson) {
           return {
             httpStatus: res.statusCode,
             operationId: this.correlationIdService.getId(),
             data,
           };
         }
+
+        return data;
       }),
       // logging
       tap(() => {

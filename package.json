@@ -33,6 +33,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "google-auth-library": "^10.3.0",
+    "googleapis": "^159.0.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
@@ -97,9 +98,9 @@
     "testEnvironment": "node"
   },
   "pnpm": {
-  "overrides": {
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.24"
+    "overrides": {
+      "reflect-metadata": "^0.2.2",
+      "typeorm": "^0.3.24"
+    }
   }
-}
 }
