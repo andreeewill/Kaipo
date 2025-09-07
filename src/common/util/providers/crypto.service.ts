@@ -56,4 +56,19 @@ export class CryptoService {
       );
     }
   }
+
+  public decodeJWT<T>(token: string): T {
+    try {
+      const decoded = jwt.decode(token) as T;
+      return decoded;
+    } catch (error) {
+      throw new GenericError(
+        {
+          type: 'FORBIDDEN',
+          message: 'Token tidak valid',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+  }
 }

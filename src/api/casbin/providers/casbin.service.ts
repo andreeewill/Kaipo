@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Enforcer, newEnforcer } from 'casbin';
+import { UserRole } from 'src/common/types/auth.type';
 import { DataSource } from 'typeorm';
 import TypeORMAdaptor from 'typeorm-adapter';
 
@@ -18,9 +19,21 @@ export class CasbinService implements OnModuleInit {
     this.enforcer = await newEnforcer('./keystore/kaipo-rbac.conf', adapter);
     this.enforcer.enableAutoSave(true);
 
-    // await this.enforcer.addPolicy('doctor', 'clinic2', '/medical', 'GET');
+    //! todo : create seeder to input policy and grouping policy to DB
+    // await this.enforcer.addPolicy('doctor', 'clinic', '/medical', 'GET');
 
-    // // await this.enforcer.savePolicy();
+    // // // await this.enforcer.savePolicy();
+    // await this.enforcer.addGroupingPolicy(
+    //   'andre.williamyuw@gmail.com',
+    //   'doctor',
+    //   'clinic',
+    // );
+    // await this.enforcer.addGroupingPolicy(
+    //   'hilal.arsa@gmail.com',
+    //   'doctor',
+    //   'clinic',
+    // );
+
     // console.log('heheh');
   }
 
@@ -28,7 +41,21 @@ export class CasbinService implements OnModuleInit {
    * Get the Casbin enforcer instance for validation
    * @returns The Casbin enforcer instance.
    */
-  public getEnforcer(): Enforcer {
+  public getEnforcerInstance(): Enforcer {
     return this.enforcer;
+  }
+
+  /**
+   * Get user roles in a specific clinic
+   * @param email User email
+   * @param orgId Organization (clinic) ID
+   */
+  public getUserRolesInClinic(
+    email: string,
+    orgId: string,
+  ): Promise<UserRole[]> {
+    return this.enforcer.getRolesForUserInDomain(email, orgId) as Promise<
+      UserRole[]
+    >;
   }
 }

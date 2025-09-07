@@ -5,9 +5,10 @@ import { AuthController } from './controllers/auth.controller';
 import { Auth0Module } from 'src/api/auth0/auth0.module';
 import { AuthService } from './providers/auth.service';
 import { GoogleModule } from 'src/api/google/google.module';
+import { CasbinModule } from 'src/api/casbin/casbin.module';
 
 @Module({
-  imports: [Auth0Module, GoogleModule],
+  imports: [Auth0Module, GoogleModule, CasbinModule],
   controllers: [AuthController],
   providers: [AuthService],
 })
