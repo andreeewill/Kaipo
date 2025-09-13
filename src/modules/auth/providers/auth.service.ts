@@ -140,12 +140,15 @@ export class AuthService {
       role: roles,
     });
 
-    return { jwt, user };
+    return jwt;
   }
 
-  public async handleGoogleCallback(code: string) {
+  public async handleGoogleCallback(code: string, redirectUrl: string) {
     // Check if consent is successful
-    const tokens = await this.googleService.exchangeAuthCodeForTokens(code);
+    const tokens = await this.googleService.exchangeAuthCodeForTokens(
+      code,
+      redirectUrl,
+    );
 
     const {
       access_token,
@@ -194,6 +197,6 @@ export class AuthService {
       role: roles,
     });
 
-    return { jwt, user };
+    return jwt;
   }
 }

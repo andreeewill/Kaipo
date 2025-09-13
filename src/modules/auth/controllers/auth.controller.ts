@@ -48,7 +48,7 @@ export class AuthController {
     res.cookie('jwt', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
@@ -73,10 +73,11 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
     @Query('code') code: string,
+    @Query('redirect_url') redirectUrl: string,
   ) {
     console.log('this is google code exchange with code', code);
 
-    const jwt = await this.authService.handleGoogleCallback(code);
+    const jwt = await this.authService.handleGoogleCallback(code, redirectUrl);
 
     // check if consent is successfull or not. if not then redirect back to FE login page.
 
@@ -85,7 +86,7 @@ export class AuthController {
     res.cookie('jwt', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 

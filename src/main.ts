@@ -43,6 +43,12 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   // Set correlation ID middleware
   app.use(new CorrelationIdMiddleware(app.get(CorrelationIdService)).use);
 

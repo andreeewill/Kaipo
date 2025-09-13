@@ -46,17 +46,21 @@ export class GoogleService implements OnModuleInit {
    * @param code
    * @returns
    */
-  public async exchangeAuthCodeForTokens(code: string) {
+  public async exchangeAuthCodeForTokens(code: string, redirectUrl: string) {
     try {
       this.logger.log('Exchanging auth code for tokens');
 
-      const { tokens } = await this.oauth2Client.getToken(code);
+      const { tokens } = await this.oauth2Client.getToken({
+        code,
+        redirect_uri: redirectUrl,
+      });
 
       return tokens;
     } catch (error) {
       this.logger.error('Error exchanging auth code for tokens');
 
       // throw new GenericError()
+
       throw error;
     }
   }
