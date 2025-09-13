@@ -4,13 +4,13 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
 import { CorrelationIdService } from '../common/logger/correlation-id.service';
 import { BaseError } from '../common/errors/base.error';
 import { AppLogger } from '../common/logger/app-logger.service';
-import { NotFoundError } from 'rxjs';
 
 /**
  * Catch all exceptions on application and handle response accordingly. All errors must be inherited from BaseError, otherwise error will be thrown.
@@ -36,7 +36,7 @@ export class AppExceptionFilter implements ExceptionFilter {
     if (isUnknownError) {
       const shouldPrintErrStack =
         process.env.NODE_ENV !== 'production' &&
-        !(exception instanceof NotFoundError);
+        !(exception instanceof NotFoundException);
 
       this.logger.error(
         `Unknown error occured : ${exception.message}`,
