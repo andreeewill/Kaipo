@@ -9,6 +9,7 @@ import { AppModule } from './modules/app.module';
 import { CorrelationIdService } from './common/logger/correlation-id.service';
 import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
 import { RequestValidationError } from './common/errors/request-validation.error';
+import cookieParser from 'cookie-parser';
 
 /**
  * Winston logger instance with custom format
@@ -58,6 +59,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+  app.use(cookieParser());
 
   // Set correlation ID middleware
   app.use(new CorrelationIdMiddleware(app.get(CorrelationIdService)).use);

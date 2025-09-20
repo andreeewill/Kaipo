@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -38,9 +39,10 @@ export class User {
   createdAt: Date;
 
   // Joins
-  @ManyToOne(() => Organization, { nullable: false })
-  @JoinColumn()
-  organization: Organization;
+  @ManyToMany(() => Organization, (organization) => organization.users, {
+    nullable: false,
+  })
+  organizations: Organization[];
 
   @OneToOne(() => UserMetadata, (userMetadata) => userMetadata.user)
   userMetadata: UserMetadata;
