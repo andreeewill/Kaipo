@@ -1,9 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Enforcer, newEnforcer } from 'casbin';
-import { UserRole } from 'src/common/types/auth.type';
 import { DataSource } from 'typeorm';
 import TypeORMAdaptor from 'typeorm-adapter';
+
+import { UserRole } from 'src/common/types/auth.type';
 
 @Injectable()
 export class CasbinService implements OnModuleInit {

@@ -57,15 +57,15 @@ export class AuthGuard implements CanActivate {
     const jwtPayload = jwt.decode(accessToken, { json: true });
     console.log('jwt payload', jwtPayload);
 
-    const roles = this.reflector.get<UserRole[]>(
-      ROLES_KEY,
-      context.getHandler(),
-    );
-    if (roles.length > 0) {
-      this.logger.log(
-        `Verifying user roles, required roles : ${roles.join(', ')}`,
-      );
-    }
+    // const roles = this.reflector.get<UserRole[]>(
+    //   ROLES_KEY,
+    //   context.getHandler(),
+    // );
+    // if (roles.length > 0) {
+    //   this.logger.log(
+    //     `Verifying user roles, required roles : ${roles.join(', ')}`,
+    //   );
+    // }
 
     const permissions = this.reflector.getAllAndMerge(PERMISSIONS_KEY, [
       context.getHandler(),

@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Organization } from './organization.entity';
+import { UserMetadata } from './user-metadata.entity';
 
 @Entity({ schema: 'public' })
 export class User {
@@ -36,7 +37,11 @@ export class User {
   @CreateDateColumn()
   createdAt: Date;
 
+  // Joins
   @ManyToOne(() => Organization, { nullable: false })
   @JoinColumn()
   organization: Organization;
+
+  @OneToOne(() => UserMetadata, (userMetadata) => userMetadata.user)
+  userMetadata: UserMetadata;
 }

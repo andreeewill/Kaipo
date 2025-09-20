@@ -1,4 +1,5 @@
 import * as winston from 'winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
@@ -33,6 +34,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({ instance }),
   });
+
+  // Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Kaipo')
+    .setDescription('This documents define all the available API in Kaipo')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   // Global validation pipe
   app.useGlobalPipes(
