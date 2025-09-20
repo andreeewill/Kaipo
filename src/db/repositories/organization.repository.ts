@@ -44,4 +44,27 @@ export class OrganizationRepository {
 
     return organization.id;
   }
+
+  /**
+   * Get all organizations (clinics) that the user has access to
+   * @param userId User ID
+   * @returns List of organizations
+   */
+  public async getAllUserOrganizations(userId: string) {
+    console.log('userId', userId);
+    const organizations = await this.repository
+      .createQueryBuilder('organization')
+      .innerJoin('organization.users', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('organization.status = :status', { status: 'active' })
+      .getMany();
+
+    // alternate query
+    // const org = await this.repository.find({
+    //   relations: { users: true },
+    //   where: { users: { id: userId } },
+    // });
+
+    return organizations;
+  }
 }

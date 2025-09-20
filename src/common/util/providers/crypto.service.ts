@@ -19,7 +19,7 @@ export class CryptoService {
    */
   public createLoginJWT(payload: Partial<JWTPayload>): string {
     const iat = Math.floor(Date.now() / 1000);
-    const exp = iat + 60 * 60; // 1 hour expiration
+    const exp = iat + (payload.exp || 60 * 60); // 1 hour expiration
     const iss = 'https://api.kaipo.my.id';
     const sub = payload.sub || '';
     const role = payload.role || [];
@@ -30,6 +30,7 @@ export class CryptoService {
       exp,
       iss,
       role,
+      scopes: payload.scopes || [],
     };
 
     return jwt.sign(jwtPayload, this.appConf.jwt.secret);

@@ -15,6 +15,8 @@ import {
 } from '../common/constants/decorator-key.constant';
 import { GenericError } from '../common/errors/generic.error';
 import { UserRole } from '../common/types/auth.type';
+import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
+import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,6 +25,26 @@ export class AuthGuard implements CanActivate {
 
     private readonly reflector: Reflector,
   ) {}
+
+  /**
+   * Extract JWT token from request headers or cookies
+   * @param request
+   */
+  private extractToken(request: Request): string | null {
+    const authHeader = request.headers?.authorization;
+    if (authHeader && authHeader.split(' ')[1]) {
+      return authHeader.split(' ')[1];
+    }
+
+    // Try to get token from cookies
+    const tokenFromCookie =
+      request.cookies?.['access_token'] || request.cookies['select_token'];
+    if (tokenFromCookie) {
+      return tokenFromCookie;
+    }
+
+    return null;
+  }
 
   canActivate(context: ExecutionContext): boolean {
     this.logger.log('AuthGuard: Checking authentication');
@@ -37,25 +59,38 @@ export class AuthGuard implements CanActivate {
     if (isPublic) return true;
 
     // Verify access token and expiration
-    const accessToken = request.headers?.authorization?.split(' ')[1];
+    const accessToken = this.extractToken(request);
     if (!accessToken) {
       throw new GenericError(
         {
           type: 'UNAUTHORIZED',
-          message: 'Pastikan kamu memberikan token akses pada header',
+          message: 'Pastikan kamu memberikan token akses yang valid',
           reason: {
-            message: 'access token is missing on headers',
-            headers: request.headers,
+            message: 'access token is missing on headers or cookies',
           },
         },
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    this.logger.log('Verifying access token signature using Auth0');
+    //! Verify token signature
 
-    const jwtPayload = jwt.decode(accessToken, { json: true });
+    const jwtPayload = jwt.decode(accessToken, { json: true }) as JWTPayload;
     console.log('jwt payload', jwtPayload);
+
+    //* Set userId (this will be captured by custom decorator @UserId())
+    request['userId'] = jwtPayload?.sub;
+
+    //* Special checks for clinic selection
+    const tokenScopes = jwtPayload?.scopes || [];
+    if (tokenScopes.includes(JWT_SCOPES.ORGANIZATION_SELECTION)) {
+      return true;
+    }
+
+    /**
+     * Generic API access checks. This includes :
+     * 1.Organization's module activation (if the module is not active, user cannot access the module's features)
+     */
 
     // const roles = this.reflector.get<UserRole[]>(
     //   ROLES_KEY,

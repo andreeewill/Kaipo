@@ -1,9 +1,9 @@
 import {
   Column,
   Entity,
-  JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
-  OneToOne,
   PrimaryColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -23,12 +23,17 @@ export class Organization {
   @Column({ nullable: false })
   name: string;
 
+  @Column({ nullable: true })
+  logoUrl: string;
+
   @Column({ type: 'enum', enum: Status, default: Status.ACTIVE })
   status: Status;
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'owner_id' })
-  owner: User;
+  @ManyToMany(() => User, (user) => user.organizations)
+  @JoinTable({
+    name: 'organization_users',
+  })
+  users: User[];
 
   @OneToMany(() => Branch, (branch) => branch.organization)
   branches: Branch[];

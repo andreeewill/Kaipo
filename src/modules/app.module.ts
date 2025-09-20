@@ -41,7 +41,7 @@ import { BasicModule } from './basic/basic.module';
         database: config.name,
         synchronize: true, // Should be turned off on production
         autoLoadEntities: true,
-        // logging: true,
+        logging: true,
       }),
       inject: [databaseConfig.KEY],
     }),

@@ -59,4 +59,6 @@ export class CasbinService implements OnModuleInit {
       UserRole[]
     >;
   }
+
+  public async getAllAvailableApi() {}
 }

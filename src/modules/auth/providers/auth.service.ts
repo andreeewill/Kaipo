@@ -7,22 +7,23 @@ import { GenericError } from 'src/common/errors/generic.error';
 import { GoogleService } from 'src/api/google/providers/google.service';
 import { UserRepository } from 'src/db/repositories/user.repository';
 import { CryptoService } from 'src/common/util/providers/crypto.service';
-import { CasbinService } from 'src/api/casbin/providers/casbin.service';
 import { IdTokenPayload } from 'src/api/google/interfaces/id-token-payload.interface';
 import { UserMetadataRepository } from 'src/db/repositories/user-metadata.repository';
+import { OrganizationRepository } from 'src/db/repositories/organization.repository';
+import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
 
+    private readonly organizationRepository: OrganizationRepository,
+
     private readonly userMetadataRepository: UserMetadataRepository,
 
     private readonly cryptoService: CryptoService,
 
     private readonly googleService: GoogleService,
-
-    private readonly casbinService: CasbinService,
 
     private readonly logger: AppLogger,
   ) {}
@@ -49,29 +50,35 @@ export class AuthService {
     }
 
     //* Google login check
-    if (user.userMetadata.isGoogleLogin) {
-      throw new GenericError(
-        {
-          type: 'FORBIDDEN',
-          message:
-            'Akun ini sudah terhubung dengan google, silahkan login menggunakan google',
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    // if (user.userMetadata.isGoogleLogin) {
+    //   throw new GenericError(
+    //     {
+    //       type: 'FORBIDDEN',
+    //       message:
+    //         'Akun ini sudah terhubung dengan google, silahkan login menggunakan google',
+    //     },
+    //     HttpStatus.FORBIDDEN,
+    //   );
+    // }
 
-    const roles = await this.casbinService.getUserRolesInClinic(
-      user.email,
-      user.organization.id,
+    // const roles = await this.casbinService.getUserRolesInClinic(
+    //   user.email,
+    //   user.organization.id,
+
+    // Get all available organizations for this user
+    const orgs = await this.organizationRepository.getAllUserOrganizations(
+      user.id,
     );
+    const availableOrgs = orgs.map((o) => ({ id: o.id, name: o.name }));
+    console.log(orgs);
 
     //! compare password (must be hashed)
     const jwt = this.cryptoService.createLoginJWT({
-      sub: user.email,
-      role: roles,
+      sub: user.id,
+      scopes: [JWT_SCOPES.ORGANIZATION_SELECTION],
     });
 
-    return jwt;
+    return { jwt, availableOrgs };
   }
 
   public async handleGoogleCallback(code: string, redirectUrl: string) {
@@ -122,14 +129,48 @@ export class AuthService {
       isGoogleLogin: true,
     });
 
-    const roles = await this.casbinService.getUserRolesInClinic(
-      user.email,
-      user.organization.id,
+    // const roles = await this.casbinService.getUserRolesInClinic(
+    //   user.email,
+    //   user.organization.id,
+    // );
+    // Get all available organizations for this user
+    const orgs = await this.organizationRepository.getAllUserOrganizations(
+      user.id,
     );
+    const availableOrgs = orgs.map((o) => ({ id: o.id, name: o.name }));
 
     const jwt = this.cryptoService.createLoginJWT({
-      sub: user.email,
-      role: roles,
+      sub: user.id,
+      scopes: [JWT_SCOPES.ORGANIZATION_SELECTION],
+    });
+
+    return { jwt, availableOrgs };
+  }
+
+  /**
+   * Get application access token (to access kaipo API)
+   * @param organizationId
+   * @param userId
+   */
+  public async getAccessToken(organizationId: string, userId: string) {
+    const orgs =
+      await this.organizationRepository.getAllUserOrganizations(userId);
+    const chosenOrg = orgs.find((o) => o.id === organizationId);
+
+    if (!chosenOrg) {
+      throw new GenericError(
+        {
+          type: 'UNAUTHORIZED',
+          message: 'Anda tidak memiliki akses ke organisasi ini',
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    // Generat JWT token with organization
+    const jwt = this.cryptoService.createLoginJWT({
+      organizationId: chosenOrg.id,
+      scopes: [JWT_SCOPES.API_ACCESS],
     });
 
     return jwt;

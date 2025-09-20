@@ -1,5 +1,15 @@
 import { Response } from 'express';
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 
 import { Public } from 'src/decorators/public.decorator';
@@ -7,6 +17,8 @@ import { LoginBasicDto } from '../dtos/login-basic.dto';
 
 import { AuthService } from '../providers/auth.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
+import { AccessTokenExchangeDto } from '../dtos/access-token-exchange.dto';
+import { UserId } from 'src/decorators/user-id.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -17,24 +29,28 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Basic login method using email and password' })
   @Public()
   public async loginBasic(
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Body() loginBasicDto: LoginBasicDto,
   ) {
     const { email, password } = loginBasicDto;
-    const jwt = await this.authService.loginBasic(email, password);
+    const { jwt, availableOrgs } = await this.authService.loginBasic(
+      email,
+      password,
+    );
 
     // Set JWT as cookie
-    res.cookie('jwt', jwt, {
+    res.cookie('select_token', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 3, // 3 minutes
     });
 
-    return res.status(204).send();
+    return { organizations: availableOrgs };
   }
 
   @Get('/google/login')
@@ -44,7 +60,6 @@ export class AuthController {
   })
   @Public()
   public async loginGoogle(
-    @Req() req: Request,
     @Res() res: Response,
     @Query('redirect_url') redirectUrl: string,
   ) {
@@ -60,26 +75,51 @@ export class AuthController {
   })
   @Public()
   public async codeExchangeGoogle(
-    @Req() req: Request,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Query('code') code: string,
     @Query('redirect_url') redirectUrl: string,
   ) {
-    this.logger.log('this is google code exchange with code', code);
+    const { jwt, availableOrgs } = await this.authService.handleGoogleCallback(
+      code,
+      redirectUrl,
+    );
 
-    const jwt = await this.authService.handleGoogleCallback(code, redirectUrl);
-
-    res.cookie('jwt', jwt, {
+    res.cookie('select_token', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 3, // 3 minutes
     });
 
-    return res.status(204).send();
+    return { organizations: availableOrgs };
   }
 
-  @Post()
+  @Post('/token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Exchange temp JWT (for clinic selection) to JWT access token',
+  })
+  public async getAccessToken(
+    @Res() res: Response,
+    @UserId() userId: string,
+    @Body() accessTokenExchangeDto: AccessTokenExchangeDto,
+  ) {
+    const jwt = await this.authService.getAccessToken(
+      accessTokenExchangeDto.organizationId,
+      userId,
+    );
+
+    res.cookie('access_token', jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: 60 * 60, // 1 hour
+    });
+
+    return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @Get('/access-control')
   @ApiOperation({ summary: 'Get current login user information ()' })
   public async currentLoginInfo() {}
 }
