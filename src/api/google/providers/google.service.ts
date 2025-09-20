@@ -35,7 +35,7 @@ export class GoogleService implements OnModuleInit {
       redirect_uri: redirectUrl,
       access_type: 'offline',
       scope: this.googleConf.scope.split(' '),
-      prompt: 'consent',
+      prompt: 'consent', //! Remove once not needed
     });
 
     return url;

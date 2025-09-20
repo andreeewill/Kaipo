@@ -25,6 +25,7 @@ import { AuthGuard } from '../guards/auth.guard';
 import { OwnerModule } from './owner/owner.module';
 import { CasbinModule } from 'src/api/casbin/casbin.module';
 import { UtilModule } from 'src/common/util/util.module';
+import { BasicModule } from './basic/basic.module';
 
 @Module({
   imports: [
@@ -55,8 +56,9 @@ import { UtilModule } from 'src/common/util/util.module';
     AdminModule,
     AuthModule,
     AppointmentModule,
-    OwnerModule,
+    BasicModule,
     CasbinModule,
+    OwnerModule,
   ],
   controllers: [],
   providers: [

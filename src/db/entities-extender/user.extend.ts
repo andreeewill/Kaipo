@@ -9,7 +9,7 @@ export const extendedUserRepository = {
   findByEmail(this: Repository<User>, email: string): Promise<User | null> {
     return this.findOne({
       where: { email },
-      relations: { organization: true },
+      relations: { organization: true, userMetadata: true },
     });
   },
 };

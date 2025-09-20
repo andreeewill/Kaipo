@@ -1,27 +1,22 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
 
 // Providers
-import { Auth0Service } from 'src/api/auth0/providers/auth0.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
-import { OrganizationRepository } from 'src/db/repositories/organization.repository';
 
-import { LoginDto } from '../dtos/login.dto';
 import { GenericError } from 'src/common/errors/generic.error';
 import { GoogleService } from 'src/api/google/providers/google.service';
 import { UserRepository } from 'src/db/repositories/user.repository';
 import { CryptoService } from 'src/common/util/providers/crypto.service';
 import { CasbinService } from 'src/api/casbin/providers/casbin.service';
 import { IdTokenPayload } from 'src/api/google/interfaces/id-token-payload.interface';
+import { UserMetadataRepository } from 'src/db/repositories/user-metadata.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly organizationRepository: OrganizationRepository,
-
     private readonly userRepository: UserRepository,
 
-    private readonly auth0Service: Auth0Service,
+    private readonly userMetadataRepository: UserMetadataRepository,
 
     private readonly cryptoService: CryptoService,
 
@@ -32,81 +27,6 @@ export class AuthService {
     private readonly logger: AppLogger,
   ) {}
 
-  // /**
-  //  * Get Auth0 login URL.
-  //  * @param loginDto
-  //  * @deprecated
-  //  */
-  // public async getLoginUrl(loginDto: LoginDto) {
-  //   const organizationId =
-  //     await this.organizationRepository.getOrganizationIdByName(
-  //       loginDto.organization,
-  //     );
-  //   this.logger.log(
-  //     `Get login URL for organization Name/ID: ${loginDto.organization}/${organizationId}`,
-  //   );
-
-  //   const url = this.auth0Service.getLoginUrl(organizationId);
-
-  //   return url;
-  // }
-
-  // /**
-  //  * Handle callback from Auth0 after user is redirected back to the application.
-  //  * @param query
-  //  * @deprecated
-  //  */
-  // public async handleCallback(query: any) {
-  //   this.logger.log('Handling Auth0 callback');
-
-  //   if (!query.code) {
-  //     if (/is not part/.test(query?.error_description)) {
-  //       throw new GenericError(
-  //         {
-  //           type: 'NOT_FOUND',
-  //           message: 'Akunmu tidak terdaftar dalam organisasi ini',
-  //           reason: {
-  //             message: 'user is not part of the organization',
-  //             queryStringFromAuth0: query,
-  //           },
-  //         },
-  //         HttpStatus.BAD_REQUEST,
-  //       );
-  //     }
-
-  //     throw new GenericError(
-  //       {
-  //         type: 'NOT_FOUND',
-  //         reason: {
-  //           message: 'code is missing from auth0 callback',
-  //           queryStrFromAuth0: query,
-  //         },
-  //       },
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-
-  //   this.logger.log('Getting Auth0 login token');
-
-  //   const token = await this.auth0Service.getLoginToken(query.code);
-
-  //   const payload = jwt.decode(token.access_token);
-  //   if (!payload) {
-  //     throw new GenericError(
-  //       {
-  //         type: 'NOT_FOUND',
-  //         reason: {
-  //           message: 'JWT decode resolve with falsy value',
-  //           payload,
-  //         },
-  //       },
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  //   console.log(token);
-  //   return token;
-  // }
-
   public getGoogleLoginUrl(redirectUrl: string): string {
     return this.googleService.getGoogleAuthUrl(redirectUrl);
   }
@@ -114,7 +34,6 @@ export class AuthService {
   public async loginBasic(email: string, password: string) {
     const user = await this.userRepository.getByEmail(email);
 
-    // Compare password
     if (!user || password !== user?.password) {
       throw new GenericError(
         {
@@ -129,12 +48,24 @@ export class AuthService {
       );
     }
 
+    //* Google login check
+    if (user.userMetadata.isGoogleLogin) {
+      throw new GenericError(
+        {
+          type: 'FORBIDDEN',
+          message:
+            'Akun ini sudah terhubung dengan google, silahkan login menggunakan google',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const roles = await this.casbinService.getUserRolesInClinic(
       user.email,
       user.organization.id,
     );
 
-    // compare password (need to be hashed)
+    //! compare password (must be hashed)
     const jwt = this.cryptoService.createLoginJWT({
       sub: user.email,
       role: roles,
@@ -144,7 +75,6 @@ export class AuthService {
   }
 
   public async handleGoogleCallback(code: string, redirectUrl: string) {
-    // Check if consent is successful
     const tokens = await this.googleService.exchangeAuthCodeForTokens(
       code,
       redirectUrl,
@@ -155,7 +85,7 @@ export class AuthService {
       refresh_token,
       id_token,
       // refresh_token_expires_in,
-      expiry_date,
+      // expiry_date,
     } = tokens;
 
     if (!id_token) {
@@ -170,7 +100,6 @@ export class AuthService {
 
     // exchange id_token
     const profile = this.cryptoService.decodeJWT<IdTokenPayload>(id_token);
-
     const user = await this.userRepository.getByEmail(profile.email);
 
     if (!user) {
@@ -186,12 +115,18 @@ export class AuthService {
       );
     }
 
+    //* Upsert google token
+    await this.userMetadataRepository.saveGoogleTokenInfo(user.id, {
+      googleAccessToken: access_token || undefined,
+      googleRefreshToken: refresh_token || undefined,
+      isGoogleLogin: true,
+    });
+
     const roles = await this.casbinService.getUserRolesInClinic(
       user.email,
       user.organization.id,
     );
 
-    // compare password (need to be hashed)
     const jwt = this.cryptoService.createLoginJWT({
       sub: user.email,
       role: roles,
