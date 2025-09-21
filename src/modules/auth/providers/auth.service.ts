@@ -76,7 +76,7 @@ export class AuthService {
     console.log(orgs);
 
     //! compare password (must be hashed)
-    const jwt = this.cryptoService.createLoginJWT({
+    const jwt = await this.cryptoService.createLoginJWT({
       sub: user.id,
       scopes: [JWT_SCOPES.ORGANIZATION_SELECTION],
     });
@@ -142,7 +142,7 @@ export class AuthService {
     );
     const availableOrgs = orgs.map((o) => ({ id: o.id, name: o.name }));
 
-    const jwt = this.cryptoService.createLoginJWT({
+    const jwt = await this.cryptoService.createLoginJWT({
       sub: user.id,
       scopes: [JWT_SCOPES.ORGANIZATION_SELECTION],
     });
@@ -171,7 +171,7 @@ export class AuthService {
     }
 
     // Generat JWT token with organization
-    const jwt = this.cryptoService.createLoginJWT({
+    const jwt = await this.cryptoService.createLoginJWT({
       sub: userId,
       organizationId: chosenOrg.id,
       scopes: [JWT_SCOPES.API_ACCESS],
