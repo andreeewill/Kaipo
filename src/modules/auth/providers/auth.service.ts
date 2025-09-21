@@ -11,6 +11,7 @@ import { IdTokenPayload } from 'src/api/google/interfaces/id-token-payload.inter
 import { UserMetadataRepository } from 'src/db/repositories/user-metadata.repository';
 import { OrganizationRepository } from 'src/db/repositories/organization.repository';
 import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
+import { CasbinService } from 'src/api/casbin/providers/casbin.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,8 @@ export class AuthService {
     private readonly cryptoService: CryptoService,
 
     private readonly googleService: GoogleService,
+
+    private readonly casbinService: CasbinService,
 
     private readonly logger: AppLogger,
   ) {}
@@ -169,10 +172,36 @@ export class AuthService {
 
     // Generat JWT token with organization
     const jwt = this.cryptoService.createLoginJWT({
+      sub: userId,
       organizationId: chosenOrg.id,
       scopes: [JWT_SCOPES.API_ACCESS],
     });
 
     return jwt;
+  }
+
+  /**
+   *
+   */
+  public async getAccessControl(userId: string, organizationId: string) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new GenericError(
+        {
+          type: 'NOT_FOUND',
+          reason: {
+            message: 'User not found when getting access control',
+          },
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const casbin = await this.casbinService.getAllAvailableApi(
+      user.email,
+      organizationId,
+    );
+
+    return casbin;
   }
 }

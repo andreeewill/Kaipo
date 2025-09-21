@@ -64,7 +64,7 @@ export class AuthGuard implements CanActivate {
       throw new GenericError(
         {
           type: 'UNAUTHORIZED',
-          message: 'Pastikan kamu memberikan token akses yang valid',
+          message: 'Pastikan kamu memberikan akses token yang valid',
           reason: {
             message: 'access token is missing on headers or cookies',
           },
@@ -80,6 +80,7 @@ export class AuthGuard implements CanActivate {
 
     //* Set userId (this will be captured by custom decorator @UserId())
     request['userId'] = jwtPayload?.sub;
+    request['tokenPayload'] = jwtPayload;
 
     //* Special checks for clinic selection
     const tokenScopes = jwtPayload?.scopes || [];

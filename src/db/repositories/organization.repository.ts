@@ -51,7 +51,6 @@ export class OrganizationRepository {
    * @returns List of organizations
    */
   public async getAllUserOrganizations(userId: string) {
-    console.log('userId', userId);
     const organizations = await this.repository
       .createQueryBuilder('organization')
       .innerJoin('organization.users', 'user')

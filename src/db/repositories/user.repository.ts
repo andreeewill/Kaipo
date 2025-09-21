@@ -32,4 +32,16 @@ export class UserRepository {
     const user = await this.userRepository.findByEmail(email);
     return user;
   }
+
+  /**
+   * Get user by ID
+   * @param userId
+   * @returns
+   */
+  public async findById(userId: string) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    return user;
+  }
 }
