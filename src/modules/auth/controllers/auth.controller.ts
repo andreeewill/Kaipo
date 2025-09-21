@@ -19,6 +19,8 @@ import { AuthService } from '../providers/auth.service';
 import { AppLogger } from 'src/common/logger/app-logger.service';
 import { AccessTokenExchangeDto } from '../dtos/access-token-exchange.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
+import { TokenPayload } from 'src/decorators/token-payload.decorator';
+import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -120,6 +122,16 @@ export class AuthController {
   }
 
   @Get('/access-control')
-  @ApiOperation({ summary: 'Get current login user information ()' })
-  public async currentLoginInfo() {}
+  @ApiOperation({ summary: 'Get current login user access-control' })
+  public async getAccessControl(@TokenPayload() tokenPayload: JWTPayload) {
+    const userId = tokenPayload.sub;
+    const organizationId = tokenPayload.organizationId!;
+
+    const result = await this.authService.getAccessControl(
+      userId,
+      organizationId,
+    );
+
+    return result;
+  }
 }

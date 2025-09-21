@@ -31,6 +31,7 @@ export class CryptoService {
       iss,
       role,
       scopes: payload.scopes || [],
+      organizationId: payload.organizationId,
     };
 
     return jwt.sign(jwtPayload, this.appConf.jwt.secret);

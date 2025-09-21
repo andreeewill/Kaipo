@@ -1,8 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { Enforcer, newEnforcer } from 'casbin';
 import { DataSource } from 'typeorm';
 import TypeORMAdaptor from 'typeorm-adapter';
+import { Enforcer, newEnforcer } from 'casbin';
+import _ from 'lodash';
 
 import { UserRole } from 'src/common/types/auth.type';
 
@@ -60,5 +61,63 @@ export class CasbinService implements OnModuleInit {
     >;
   }
 
-  public async getAllAvailableApi() {}
+  /**
+   * Get all roles and available APIs for a user in a specific organization
+   * @param email User email
+   * @param organizationId Organization (clinic) ID
+   * @returns Object containing user roles and available APIs
+   */
+  public async getAllAvailableApi(email: string, organizationId: string) {
+    const userRoles = await this.getUserRolesInClinic(email, organizationId);
+    const result = {};
+
+    for (const role of userRoles) {
+      // Get all policies for this role in this organization
+      const policies = await this.enforcer.getFilteredPolicy(
+        0,
+        role,
+        organizationId,
+      );
+
+      for (const policy of policies) {
+        const role = policy[0];
+        const urlPath = policy[2];
+        const httpMethod = policy[3];
+
+        // policy format: [role, organizationId, urlPath, method]
+        const match = urlPath.match(/^\/([^\/]+)/);
+        const moduleName = match ? match[1] : 'unknown';
+
+        if (policy.length >= 4) {
+          _.set(result, [role, moduleName, `${httpMethod}:${urlPath}`], true);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Validates if a user has access to a specific API endpoint based.
+   * @param email User ID (email)
+   * @param organizationId Organization (clinic) ID
+   * @param urlMethod HTTP method of the API endpoint (e.g., GET, POST)
+   * @param urlPath URL path of the API endpoint (e.g., /patients, /appointments)
+   * @returns boolean indicating if the user has access
+   */
+  public async hasAccess(
+    email: string,
+    organizationId: string,
+    urlMethod: string,
+    urlPath: string,
+  ): Promise<boolean> {
+    const allow = await this.enforcer.enforce(
+      email,
+      organizationId,
+      urlPath,
+      urlMethod,
+    );
+
+    return allow;
+  }
 }
