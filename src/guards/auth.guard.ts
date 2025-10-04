@@ -14,7 +14,6 @@ import {
   ROLES_KEY,
 } from '../common/constants/decorator-key.constant';
 import { GenericError } from '../common/errors/generic.error';
-import { UserRole } from '../common/types/auth.type';
 import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
 import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
 
@@ -51,14 +50,14 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
 
-    // Skip public routes
+    // * Skip public routes
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
     if (isPublic) return true;
 
-    // Verify access token and expiration
+    // * Verify access token and expiration
     const accessToken = this.extractToken(request);
     if (!accessToken) {
       throw new GenericError(

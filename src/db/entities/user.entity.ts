@@ -2,9 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToMany,
-  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -26,11 +24,14 @@ export class User {
   @Column()
   dob: Date;
 
-  @Column({ name: 'phone_number' })
-  phoneNumber: string;
+  @Column()
+  phone: string;
 
   @Column({ nullable: true })
   password: string;
+
+  @Column({ nullable: true })
+  pictureUrl: string;
 
   @UpdateDateColumn()
   updatedAt: Date;

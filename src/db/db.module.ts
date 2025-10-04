@@ -11,11 +11,18 @@ import { OrganizationRepository } from './repositories/organization.repository';
 import { UserRepository } from './repositories/user.repository';
 import { UserMetadata } from './entities/user-metadata.entity';
 import { UserMetadataRepository } from './repositories/user-metadata.repository';
+import { Patient } from './entities/patient.entity';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Organization, Branch, UserMetadata]),
+    TypeOrmModule.forFeature([
+      User,
+      Organization,
+      Branch,
+      UserMetadata,
+      Patient,
+    ]),
   ],
   controllers: [],
   exports: [OrganizationRepository, UserRepository, UserMetadataRepository],

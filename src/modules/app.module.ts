@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import { RequestModule } from '../common/request/request.module';
 import { DbModule } from '../db/db.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { PatientModule } from './patient/patient.module';
 
 // Misc
 import { AppExceptionFilter } from '../filters/app-exception.filter';
@@ -41,7 +42,7 @@ import { BasicModule } from './basic/basic.module';
         database: config.name,
         synchronize: true, // Should be turned off on production
         autoLoadEntities: true,
-        logging: true,
+        // logging: true,
       }),
       inject: [databaseConfig.KEY],
     }),
@@ -59,6 +60,7 @@ import { BasicModule } from './basic/basic.module';
     BasicModule,
     CasbinModule,
     OwnerModule,
+    PatientModule,
   ],
   controllers: [],
   providers: [
