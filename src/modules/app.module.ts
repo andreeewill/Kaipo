@@ -27,6 +27,9 @@ import { OwnerModule } from './owner/owner.module';
 import { CasbinModule } from 'src/api/casbin/casbin.module';
 import { UtilModule } from 'src/common/util/util.module';
 import { BasicModule } from './basic/basic.module';
+import { ReferenceModule } from './reference/reference.module';
+import { SatuSehatModule } from 'src/api/satu-sehat/satu-sehat.module';
+import satuSehatConfig from 'src/config/satu-sehat.config';
 
 @Module({
   imports: [
@@ -49,7 +52,13 @@ import { BasicModule } from './basic/basic.module';
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      load: [appConfig, auth0Config, databaseConfig, googleConfig],
+      load: [
+        appConfig,
+        auth0Config,
+        databaseConfig,
+        googleConfig,
+        satuSehatConfig,
+      ],
       validationSchema: validationConfig,
     }),
     RequestModule, // only used as a side effect to HttpModule
@@ -61,6 +70,8 @@ import { BasicModule } from './basic/basic.module';
     CasbinModule,
     OwnerModule,
     PatientModule,
+    ReferenceModule,
+    SatuSehatModule,
   ],
   controllers: [],
   providers: [

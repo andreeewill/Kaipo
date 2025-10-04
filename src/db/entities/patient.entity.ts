@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +11,7 @@ import {
 import { Gender } from '../enums/gender.enum';
 import { MaritalStatus } from '../enums/marital-status.enum';
 import { Citizenship } from '../enums/citizenship.enum';
+import { Organization } from './organization.entity';
 
 @Entity({ schema: 'public' })
 export class Patient {
@@ -18,6 +20,9 @@ export class Patient {
 
   @PrimaryColumn({ comment: 'Nomor Induk Kependudukan' })
   NIK: string;
+
+  @Column({ nullable: true })
+  IHS: string;
 
   @Column({ comment: 'Nomor Kartu Keluarga', nullable: true })
   kkNumber?: string;
@@ -92,4 +97,8 @@ export class Patient {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  // Join
+  @ManyToOne(() => Organization, (org) => org.patients)
+  organization: Organization;
 }
