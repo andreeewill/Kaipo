@@ -16,6 +16,11 @@ export const GenericErrorCode = {
     code: '00003',
     message: 'Akses ditolak',
   },
+  UNPROCESSABLE_ENTITY: {
+    code: '00004',
+    message:
+      'Permintaan kamu tidak dapat diproses, silahkan hubungi ke support@kaipo.id',
+  },
 } as const;
 
 interface GenericErrorOptions {

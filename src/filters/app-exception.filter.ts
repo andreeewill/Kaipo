@@ -29,6 +29,20 @@ export class AppExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const isUnknownError = !(exception instanceof BaseError);
+    const isNotFoundError = exception instanceof NotFoundException;
+
+    if (isUnknownError && isNotFoundError) {
+      this.logger.error(`Resource not found : ${exception.message}`);
+
+      return response.status(HttpStatus.NOT_FOUND).json({
+        httpStatus: HttpStatus.NOT_FOUND,
+        operationId: this.correlationIdService.getId(),
+        data: {
+          code: `${moment().format('MMDDhmmss')}-00001`,
+          message: 'Hal yang kamu cari tidak dapat ditemukan :(',
+        },
+      });
+    }
 
     /**
      * Error must be inherited from BaseError (no need to print error on unknown route)

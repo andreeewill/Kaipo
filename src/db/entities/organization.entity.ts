@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Branch } from './branch.entity';
+import { Patient } from './patient.entity';
 
 export enum Status {
   ACTIVE = 'active',
@@ -37,4 +38,7 @@ export class Organization {
 
   @OneToMany(() => Branch, (branch) => branch.organization)
   branches: Branch[];
+
+  @OneToMany(() => Patient, (patient) => patient.organization)
+  patients: Patient[];
 }

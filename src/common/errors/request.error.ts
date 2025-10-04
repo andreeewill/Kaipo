@@ -1,49 +1,29 @@
 import moment from 'moment';
-import { ClientRequest } from 'http';
 import { HttpStatus } from '@nestjs/common';
 
 import { BaseError } from './base.error';
 
-interface ResponseErr<T> {
-  type: 'response';
-  status: number;
-  data: T;
-  headers: any;
+interface RequestErrorOptions {
+  error: Record<string, any>;
   message: string;
-  config: any;
 }
-interface RequestErr {
-  type: 'request';
-  message: string;
-  request: ClientRequest;
-  config: any;
-}
-
-interface GeneralError {
-  type: 'general';
-  message: string;
-  config: any;
-}
-
-export type HttpError<T = any> = ResponseErr<T> | RequestErr | GeneralError;
-
 /**
  * Request error will always show default error message as all error thrown by axios can't be guaranteed
  */
 export class RequestError extends BaseError {
-  // constructor(httpError: HttpError, httpStatus: HttpStatus) {
-  //   super(httpError, httpStatus);
-  // }
+  constructor(error: RequestErrorOptions) {
+    super(error, HttpStatus.UNPROCESSABLE_ENTITY);
+  }
 
   getErrorDetailsBE(): object | string {
-    const res = this.getResponse() as HttpError;
+    const { error, message } = this.getResponse() as RequestErrorOptions;
 
-    return {
-      type: res.type,
-      message: res.message,
-      data: res.type === 'response' ? res.data : null,
-      status: res.type === 'response' ? res.status : null,
-    };
+    return JSON.stringify({
+      type: error.type || 'unknown',
+      message: message,
+      data: error.data || null,
+      status: error.status || 500,
+    });
   }
 
   getErrorDetailsFE(): object | string {
