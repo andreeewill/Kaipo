@@ -1,13 +1,15 @@
 import { Response } from 'express';
+import { ConfigType } from '@nestjs/config';
 import {
   Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   Query,
-  Req,
+  // Req,
   Res,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -16,15 +18,20 @@ import { Public } from 'src/decorators/public.decorator';
 import { LoginBasicDto } from '../dtos/login-basic.dto';
 
 import { AuthService } from '../providers/auth.service';
+import appConfig from 'src/config/app.config';
 import { AppLogger } from 'src/common/logger/app-logger.service';
+import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
+
 import { AccessTokenExchangeDto } from '../dtos/access-token-exchange.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { TokenPayload } from 'src/decorators/token-payload.decorator';
-import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    @Inject(appConfig.KEY)
+    private readonly appConfiguration: ConfigType<typeof appConfig>,
+
     private readonly authService: AuthService,
 
     private readonly logger: AppLogger,
@@ -47,7 +54,7 @@ export class AuthController {
     // Set JWT as cookie
     res.cookie('select_token', jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: this.appConfiguration.isProduction,
       sameSite: 'none',
       maxAge: 60 * 3, // 3 minutes
     });
@@ -88,7 +95,7 @@ export class AuthController {
 
     res.cookie('select_token', jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: this.appConfiguration.isProduction,
       sameSite: 'none',
       maxAge: 60 * 3, // 3 minutes
     });
@@ -113,7 +120,7 @@ export class AuthController {
 
     res.cookie('access_token', jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: this.appConfiguration.isProduction,
       sameSite: 'none',
       maxAge: 60 * 60, // 1 hour
     });
