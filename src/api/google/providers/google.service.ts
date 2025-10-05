@@ -1,7 +1,8 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { OAuth2Client } from 'google-auth-library';
-import { google } from 'googleapis';
 import { ConfigType } from '@nestjs/config';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
+
 import { AppLogger } from 'src/common/logger/app-logger.service';
 import googleConfig from 'src/config/google.config';
 
@@ -42,7 +43,7 @@ export class GoogleService implements OnModuleInit {
   }
 
   /**
-   * Exchange
+   * Exchange auth code for tokens (access token, refresh token, id token, etc)
    * @param code
    * @returns
    */

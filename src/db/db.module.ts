@@ -12,6 +12,7 @@ import { UserRepository } from './repositories/user.repository';
 import { UserMetadata } from './entities/user-metadata.entity';
 import { UserMetadataRepository } from './repositories/user-metadata.repository';
 import { Patient } from './entities/patient.entity';
+import { PatientRepository } from './repositories/patient.repository';
 
 @Global()
 @Module({
@@ -25,7 +26,17 @@ import { Patient } from './entities/patient.entity';
     ]),
   ],
   controllers: [],
-  exports: [OrganizationRepository, UserRepository, UserMetadataRepository],
-  providers: [OrganizationRepository, UserRepository, UserMetadataRepository],
+  exports: [
+    OrganizationRepository,
+    UserRepository,
+    UserMetadataRepository,
+    PatientRepository,
+  ],
+  providers: [
+    OrganizationRepository,
+    UserRepository,
+    UserMetadataRepository,
+    PatientRepository,
+  ],
 })
 export class DbModule {}

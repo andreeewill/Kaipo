@@ -72,6 +72,8 @@ export class SatuSehatRequestProvider {
   public async getMasterDataProvinces(
     accessToken: string,
   ): Promise<GetProvincesMasterDataResponse> {
+    const start = Date.now();
+
     try {
       const url = new URL(
         `${this.satuSehatConf.baseUrl}/masterdata/v1/provinces`,
@@ -85,8 +87,16 @@ export class SatuSehatRequestProvider {
         }),
       );
 
+      this.logger.log(
+        `Fetched provinces master data success in ${Date.now() - start}ms`,
+      );
+
       return result.data;
     } catch (error) {
+      this.logger.error(
+        `Failed to get provinces master data in ${Date.now() - start}ms`,
+      );
+
       throw new RequestError({
         error,
         message: 'Failed to get provinces list from master data',

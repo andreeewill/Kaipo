@@ -48,20 +48,32 @@ export class Patient {
   @Column({ comment: 'Peruntukan alamat', default: 'home' })
   addressUse: string;
 
-  @Column({ comment: 'Kode administratif wilayah' })
+  @Column({ comment: 'Kode administratif wilayah', nullable: true })
   extensionCode: string;
 
-  @Column({ nullable: false })
+  @Column({ comment: 'Kode provinsi', nullable: false })
   provinceCode: string;
 
-  @Column({ nullable: false })
-  city: string;
+  @Column({ comment: 'Nama provinsi', nullable: false })
+  provinceName: string;
 
-  @Column({ comment: 'Kecamatan', nullable: false })
-  district: string;
+  @Column({ comment: 'Kode kota', nullable: false })
+  cityCode: string;
 
-  @Column({ comment: 'Kelurahan/Desa', nullable: false })
-  village: string;
+  @Column({ comment: 'Nama kota', nullable: false })
+  cityName: string;
+
+  @Column({ comment: 'Kode kecamatan', nullable: false })
+  districtCode: string;
+
+  @Column({ comment: 'Nama kecamatan', nullable: false })
+  districtName: string;
+
+  @Column({ comment: 'Kode kelurahan/desa', nullable: false })
+  subDistrictCode: string;
+
+  @Column({ comment: 'Nama kelurahan/desa', nullable: false })
+  subDistrictName: string;
 
   @Column({ nullable: false })
   rt: string;
