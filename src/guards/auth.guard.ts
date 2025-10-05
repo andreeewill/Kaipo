@@ -16,6 +16,7 @@ import {
 import { GenericError } from '../common/errors/generic.error';
 import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
 import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
+import { CryptoService } from 'src/common/util/providers/crypto.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,6 +24,8 @@ export class AuthGuard implements CanActivate {
     private readonly logger: AppLogger,
 
     private readonly reflector: Reflector,
+
+    private readonly cryptoService: CryptoService,
   ) {}
 
   /**
@@ -45,7 +48,7 @@ export class AuthGuard implements CanActivate {
     return null;
   }
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.log('AuthGuard: Checking authentication');
 
     const request = context.switchToHttp().getRequest<Request>();
@@ -73,8 +76,8 @@ export class AuthGuard implements CanActivate {
     }
 
     //! Verify token signature
+    const jwtPayload = await this.cryptoService.verifyLoginJWT(accessToken);
 
-    const jwtPayload = jwt.decode(accessToken, { json: true }) as JWTPayload;
     console.log('jwt payload', jwtPayload);
 
     //* Set userId (this will be captured by custom decorator @UserId())

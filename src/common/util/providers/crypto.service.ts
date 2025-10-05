@@ -1,11 +1,12 @@
+import { HttpStatus, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { HttpStatus, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { JWK, JWS } from 'node-jose';
+
 import { JWTPayload } from '../interfaces/jwt-payload.interface';
 import appConfig from 'src/config/app.config';
-import { ConfigType } from '@nestjs/config';
 import { GenericError } from 'src/common/errors/generic.error';
-import { JWK, JWS } from 'node-jose';
 import { AppLogger } from 'src/common/logger/app-logger.service';
 
 @Injectable()
@@ -42,7 +43,7 @@ export class CryptoService implements OnModuleInit {
 
       this.logger.log('Keystore initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize keystore');
+      this.logger.error(`Failed to initialize keystore : ${error.message}`);
       throw new GenericError(
         {
           type: 'NOT_FOUND',
@@ -97,21 +98,20 @@ export class CryptoService implements OnModuleInit {
    */
   public async verifyLoginJWT(token: string): Promise<JWTPayload> {
     try {
-      // const decoded = jwt.verify(token, this.appConf.jwt.secret) as JWTPayload;
       const verifyResult = await JWS.createVerify(this.verifyKey).verify(token);
       const decoded = JSON.parse(verifyResult.payload.toString()) as JWTPayload;
 
       //* Expiry Check
-      const now = Math.floor(Date.now() / 1000); // in sec
-      if (decoded.exp < now) {
-        throw new GenericError(
-          {
-            type: 'FORBIDDEN',
-            message: 'Token sudah expired, silahkan login kembali ',
-          },
-          HttpStatus.FORBIDDEN,
-        );
-      }
+      // const now = Math.floor(Date.now() / 1000); // in sec
+      // if (decoded.exp < now) {
+      //   throw new GenericError(
+      //     {
+      //       type: 'FORBIDDEN',
+      //       message: 'Token sudah expired, silahkan login kembali ',
+      //     },
+      //     HttpStatus.FORBIDDEN,
+      //   );
+      // }
 
       return decoded;
     } catch (error) {
