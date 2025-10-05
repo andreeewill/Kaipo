@@ -10,7 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { IsDOB } from '../../../common/validations/decorators/isDOB.decorator';
+import { IsDOB } from '../../../common/validations/decorators/IsDOB.decorator';
 import { Citizenship } from 'src/db/enums/citizenship.enum';
 
 import { Gender } from 'src/db/enums/gender.enum';
