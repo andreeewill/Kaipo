@@ -30,6 +30,7 @@ export class Organization {
   @Column({ type: 'enum', enum: Status, default: Status.ACTIVE })
   status: Status;
 
+  // Joins
   @ManyToMany(() => User, (user) => user.organizations)
   @JoinTable({
     name: 'organization_users',

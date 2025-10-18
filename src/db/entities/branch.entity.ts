@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Organization } from './organization.entity';
+import { OfficeHours } from './office-hours.entity';
 
 @Entity({ schema: 'public' })
 export class Branch {
@@ -23,4 +30,7 @@ export class Branch {
 
   @ManyToOne(() => Organization, (org) => org.branches)
   organization: Organization;
+
+  @OneToMany(() => OfficeHours, (officeHours) => officeHours.branch)
+  officeHours: OfficeHours[];
 }

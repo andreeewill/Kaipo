@@ -4,7 +4,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -15,9 +14,6 @@ import { Organization } from './organization.entity';
 
 @Entity({ schema: 'public' })
 export class Patient {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
   @PrimaryColumn({ comment: 'Nomor Induk Kependudukan' })
   NIK: string;
 

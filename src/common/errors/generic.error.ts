@@ -26,7 +26,7 @@ export const GenericErrorCode = {
 interface GenericErrorOptions {
   type: keyof typeof GenericErrorCode;
   message?: string;
-  reason?: Record<string, any>; // backend details for logging
+  reason?: Record<string, any> | string; // backend details for logging
 }
 
 export class GenericError extends BaseError {
@@ -40,7 +40,7 @@ export class GenericError extends BaseError {
 
     return JSON.stringify({
       errorCode: GenericErrorCode[res.type].code,
-      ...res,
+      reason: res.reason || 'No additional error details provided',
     });
   }
 

@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { UserMetadata } from './user-metadata.entity';
+import { OfficeHours } from './office-hours.entity';
 
 @Entity({ schema: 'public' })
 export class User {
@@ -40,6 +42,9 @@ export class User {
   createdAt: Date;
 
   // Joins
+  @OneToMany(() => OfficeHours, (officeHours) => officeHours.user)
+  officeHours: OfficeHours[];
+
   @ManyToMany(() => Organization, (organization) => organization.users, {
     nullable: false,
   })

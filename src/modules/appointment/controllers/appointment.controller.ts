@@ -10,7 +10,6 @@ export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @Post()
-  @Permissions([PERMISSION.CREATE_APPOINTMENT])
   public createApppointment() {
     console.log('Creating appointment...');
   }
