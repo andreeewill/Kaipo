@@ -36,7 +36,6 @@ export class PatientService {
       await this.patientRepository.getAllByOrganization(organizationId);
 
     const formatted = result.map((patient) => ({
-      id: patient.id,
       NIK: patient.NIK,
       kkNumber: patient.kkNumber,
       name: patient.name,

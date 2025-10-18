@@ -9,6 +9,8 @@ import validationConfig from '../config/validation.config';
 import auth0Config from '../config/auth0.config';
 import databaseConfig from '../config/database.config';
 import googleConfig from 'src/config/google.config';
+import satuSehatConfig from 'src/config/satu-sehat.config';
+import openaiConfig from 'src/config/openai.config';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
@@ -18,6 +20,7 @@ import { RequestModule } from '../common/request/request.module';
 import { DbModule } from '../db/db.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { PatientModule } from './patient/patient.module';
+import { EmrModule } from './medical-record/emr.module';
 
 // Misc
 import { AppExceptionFilter } from '../filters/app-exception.filter';
@@ -29,7 +32,7 @@ import { UtilModule } from 'src/common/util/util.module';
 import { BasicModule } from './basic/basic.module';
 import { ReferenceModule } from './reference/reference.module';
 import { SatuSehatModule } from 'src/api/satu-sehat/satu-sehat.module';
-import satuSehatConfig from 'src/config/satu-sehat.config';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -58,6 +61,7 @@ import satuSehatConfig from 'src/config/satu-sehat.config';
         databaseConfig,
         googleConfig,
         satuSehatConfig,
+        openaiConfig,
       ],
       validationSchema: validationConfig,
     }),
@@ -72,6 +76,8 @@ import satuSehatConfig from 'src/config/satu-sehat.config';
     PatientModule,
     ReferenceModule,
     SatuSehatModule,
+    EmrModule,
+    ReservationModule,
   ],
   controllers: [],
   providers: [

@@ -37,6 +37,7 @@ export class GoogleService implements OnModuleInit {
       access_type: 'offline',
       scope: this.googleConf.scope.split(' '),
       prompt: 'consent', //! Remove once not needed
+      // state
     });
 
     return url;
