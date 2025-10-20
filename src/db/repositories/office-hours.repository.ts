@@ -36,6 +36,7 @@ export class OfficeHoursRepository {
 
       const officeHours = await this.repository.findOne({
         where: { id: officeHoursId },
+        relations: { branch: true, user: true },
       });
 
       return officeHours;

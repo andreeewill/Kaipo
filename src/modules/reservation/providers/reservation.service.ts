@@ -7,6 +7,7 @@ import { GenericError } from 'src/common/errors/generic.error';
 import { OfficeHoursRepository } from 'src/db/repositories/office-hours.repository';
 
 import { ReservationRepository } from 'src/db/repositories/reservation.repository';
+import { UserRepository } from 'src/db/repositories/user.repository';
 
 @Injectable()
 export class ReservationService {
@@ -14,6 +15,8 @@ export class ReservationService {
     private readonly logger: AppLogger,
 
     private readonly reservationRepository: ReservationRepository,
+
+    private readonly userRepository: UserRepository,
 
     private readonly officeHoursRepository: OfficeHoursRepository,
 
@@ -112,15 +115,82 @@ export class ReservationService {
       );
     }
 
+    //* Get organization  from branch ID
+    const organization = await this.branchRepository.getOrganizationByBranchId(
+      officeHour.branch.id,
+    );
+
     const reservation = await this.reservationRepository.createReservation({
       name: createReservationDto.name,
       phone: createReservationDto.phone,
       complaint: createReservationDto.complaint,
-      timeslot: officeHour,
+      startTime: officeHour.startTime,
+      endTime: officeHour.endTime,
+      organizationId: organization!.id,
+      branchId: officeHour.branch.id,
+      doctorId: officeHour.user.id,
+      date: createReservationDto.date,
     });
 
     this.logger.log(`Reservation created with ID: ${reservation.id}`);
 
     return reservation;
+  }
+
+  /**
+   * Get pending reservations for a specific organization and optional branch
+   * @param organizationId
+   * @param branchId
+   */
+  public async getPendingReservations(
+    organizationId: string,
+    branchId?: string,
+  ) {
+    this.logger.log(`Fetching pending reservations..`);
+
+    const reservations =
+      await this.reservationRepository.getPendingReservations({
+        organizationId,
+        branchId,
+      });
+
+    const formattedReservations = reservations.map((r) => ({
+      name: r.name,
+      complaint: r.complaint,
+      startTime: r.startTime,
+      endTime: r.endTime,
+      status: r.status,
+    }));
+
+    return formattedReservations;
+  }
+
+  public async getReservations(organizationId: string, branchId?: string) {
+    this.logger.log(`Fetching reservations..`);
+
+    //@todo : implement paginations
+
+    const reservations =
+      await this.reservationRepository.getPendingReservations({
+        organizationId,
+        branchId,
+      });
+
+    const formattedReservations = Promise.all(
+      reservations.map(async (r) => {
+        const doctor = await this.userRepository.findById(r.doctorId);
+        return {
+          name: r.name,
+          complaint: r.complaint,
+          doctorName: doctor?.name,
+          phone: r.phone,
+          startTime: r.startTime,
+          endTime: r.endTime,
+          status: r.status,
+        };
+      }),
+    );
+
+    return formattedReservations;
   }
 }

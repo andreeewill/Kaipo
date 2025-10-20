@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class OpenaiPrompterProvider {
-  // constructor() {}
-
   public getPromptTemplateForRMEDiagnosis(
     anamnesis: string,
     examination: string,
@@ -17,7 +15,8 @@ export class OpenaiPrompterProvider {
         {
           "diagnosis": "teks",
           "icd10": "<kode ICD-10> - <nama ICD-10 dalam bahasa inggris>",
-          "reasoning": "penjelasan singkat kenapa diagnosis ini cocok"
+          "reasoning": "penjelasan singkat kenapa diagnosis ini cocok",
+          "relevancyScore": <angka antara 0.1 sampai 1 yang menunjukkan seberapa relevan diagnosis ini>
         }
       ]
 
@@ -32,7 +31,7 @@ export class OpenaiPrompterProvider {
       - Analisa temuan klinis (clinical examination) dengan teliti
       - Korelasikan dengan temuan pemeriksaan klinis
       - Pertimbangkan beberapa kemungkinan berdasarkan bukti yang disajikan
-      - Urutkan rekomendasi berdasarkan probabilitas/kemungkinan
+      - Urutkan rekomendasi berdasarkan probabilitas/relevansi (dari tinggi ke rendah)
       - Berikan kode ICD-10 yang sesuai untuk setiap diagnosis
 
       Contoh (berdasarkan dataset):

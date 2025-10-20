@@ -7,6 +7,11 @@ import moment from 'moment';
 export class RequestValidationError extends BaseError {
   public static readonly options: ValidationPipeOptions = {
     transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
     validationError: { target: false },
     stopAtFirstError: true,
   };

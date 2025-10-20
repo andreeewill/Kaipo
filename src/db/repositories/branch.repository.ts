@@ -11,7 +11,7 @@ export class BranchRepository {
     @InjectRepository(Branch)
     private readonly repository: Repository<Branch>,
 
-    private readonly appLogger: AppLogger,
+    private readonly logger: AppLogger,
   ) {}
 
   public async getOrganizationByBranchId(branchId: string) {

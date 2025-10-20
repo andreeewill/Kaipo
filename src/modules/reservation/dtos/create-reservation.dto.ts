@@ -5,6 +5,8 @@ import {
   IsMobilePhone,
   IsUUID,
 } from 'class-validator';
+import { IsDateLessThan } from 'src/common/validations/decorators/isDateLessThan.decorator';
+import { IsValidDate } from 'src/common/validations/decorators/IsValidDate.decorator';
 
 export class CreateReservationDto {
   @MaxLength(50, { message: '$property tidak boleh lebih dari 50 karakter' })
@@ -26,6 +28,14 @@ export class CreateReservationDto {
   @IsString({ message: '$property harus berupa string' })
   @IsNotEmpty({ message: '$property tidak boleh kosong' })
   complaint: string;
+
+  @IsDateLessThan(30)
+  @IsValidDate({
+    message:
+      '$property harus dalam format YYYY-MM-DD dan merupakan tanggal yang valid',
+  })
+  @IsNotEmpty({ message: '$property tidak boleh kosong' })
+  date: string;
 
   @IsUUID('4', { message: '$property harus berupa UUID yang valid' })
   @IsString({ message: '$property harus berupa string' })

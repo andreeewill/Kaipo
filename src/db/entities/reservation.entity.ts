@@ -1,14 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
-import { Branch } from './branch.entity';
-import { OfficeHours } from './office-hours.entity';
+import { ReservationStatus } from '../enums/reservation-status.enum';
 
 @Entity({ schema: 'public' })
 export class Reservation {
@@ -24,7 +21,46 @@ export class Reservation {
   @Column({ nullable: false, type: 'text' })
   complaint: string;
 
-  // Joins
-  @ManyToOne(() => OfficeHours, { nullable: false })
-  timeslot: OfficeHours;
+  @Column({ nullable: false })
+  date: string;
+
+  @Column({ nullable: false })
+  startTime: string;
+
+  @Column({ nullable: false })
+  endTime: string;
+
+  @Column({
+    nullable: false,
+    comment:
+      'No direct relation to appointment (for reference and easier query)',
+  })
+  organizationId: string;
+
+  @Column({
+    nullable: false,
+    comment:
+      'No direct relation to appointment (for reference and easier query)',
+  })
+  branchId: string;
+
+  @Column({
+    nullable: false,
+    comment:
+      'No direct relation to appointment (for reference and easier query)',
+  })
+  doctorId: string;
+
+  @Column({
+    type: 'enum',
+    enum: ReservationStatus,
+    default: ReservationStatus.Pending,
+  })
+  status: ReservationStatus;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

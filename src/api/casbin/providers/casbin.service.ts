@@ -35,8 +35,6 @@ export class CasbinService implements OnModuleInit {
     //   'doctor',
     //   'clinic',
     // );
-
-    // console.log('heheh');
   }
 
   /**

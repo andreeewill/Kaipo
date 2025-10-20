@@ -1,9 +1,9 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 
-export function IsDOB(validationOptions?: ValidationOptions) {
+export function IsValidDate(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isDOB',
+      name: 'isValidDate',
       target: object.constructor,
       propertyName,
       options: validationOptions,
