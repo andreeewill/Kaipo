@@ -54,6 +54,7 @@ async function bootstrap() {
     }),
   );
 
+  //! configure CORS once deployed
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

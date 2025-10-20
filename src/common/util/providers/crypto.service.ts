@@ -26,6 +26,13 @@ export class CryptoService implements OnModuleInit {
     await this.initializeKeystore();
   }
 
+  /**
+   * Check if the crypto service is properly initialized
+   */
+  public isInitialized(): boolean {
+    return !!(this.keystore && this.signingKey && this.verifyKey);
+  }
+
   private async initializeKeystore() {
     try {
       const privateKeyPem = fs.readFileSync(
@@ -121,6 +128,7 @@ export class CryptoService implements OnModuleInit {
         {
           type: 'FORBIDDEN',
           message: 'Token tidak valid',
+          reason: `Token is not valid (expired or signature mismatch) : ${error.message}`,
         },
         HttpStatus.FORBIDDEN,
       );
@@ -136,7 +144,7 @@ export class CryptoService implements OnModuleInit {
     try {
       const decoded = jwt.decode(token) as T;
       return decoded;
-    } catch (error) {
+    } catch {
       throw new GenericError(
         {
           type: 'FORBIDDEN',

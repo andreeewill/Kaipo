@@ -17,6 +17,7 @@ import { GenericError } from '../common/errors/generic.error';
 import { JWTPayload } from 'src/common/util/interfaces/jwt-payload.interface';
 import { JWT_SCOPES } from 'src/common/util/constants/jwt.constant';
 import { CryptoService } from 'src/common/util/providers/crypto.service';
+import { CasbinService } from 'src/api/casbin/providers/casbin.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,7 +26,10 @@ export class AuthGuard implements CanActivate {
 
     private readonly reflector: Reflector,
 
+    //? Providers
     private readonly cryptoService: CryptoService,
+
+    private readonly casbinService: CasbinService,
   ) {}
 
   /**
@@ -78,11 +82,8 @@ export class AuthGuard implements CanActivate {
     //! Verify token signature
     const jwtPayload = await this.cryptoService.verifyLoginJWT(accessToken);
 
-    console.log('jwt payload', jwtPayload);
-
-    //* Set userId (this will be captured by custom decorator @UserId())
-    request['userId'] = jwtPayload?.sub;
-    request['tokenPayload'] = jwtPayload;
+    request['userId'] = jwtPayload?.sub; //* captured by @UserId()
+    request['tokenPayload'] = jwtPayload; //* captured by @TokenPayload()
 
     //* Special checks for clinic selection
     const tokenScopes = jwtPayload?.scopes || [];

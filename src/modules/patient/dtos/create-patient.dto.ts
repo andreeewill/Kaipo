@@ -10,7 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { IsDOB } from '../../../common/validations/decorators/IsDOB.decorator';
+import { IsValidDate } from '../../../common/validations/decorators/IsValidDate.decorator';
 import { Citizenship } from 'src/db/enums/citizenship.enum';
 
 import { Gender } from 'src/db/enums/gender.enum';
@@ -31,7 +31,7 @@ export class CreatePatientDto {
   @IsNotEmpty({ message: '$property tidak boleh kosong' })
   name: string;
 
-  @IsDOB({
+  @IsValidDate({
     message:
       '$property harus dalam format YYYY-MM-DD dan merupakan tanggal yang valid',
   })

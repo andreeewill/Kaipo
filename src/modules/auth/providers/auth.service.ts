@@ -170,10 +170,18 @@ export class AuthService {
       );
     }
 
-    // Generat JWT token with organization
+    //* Get user's roles
+    const user = await this.userRepository.findById(userId);
+    const roles = await this.casbinService.getUserRolesInClinic(
+      user!.email,
+      organizationId,
+    );
+
+    //* Generate JWT token with organization
     const jwt = await this.cryptoService.createLoginJWT({
       sub: userId,
       organizationId: chosenOrg.id,
+      role: roles,
       scopes: [JWT_SCOPES.API_ACCESS],
     });
 

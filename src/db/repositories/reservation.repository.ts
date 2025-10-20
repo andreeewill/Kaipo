@@ -1,10 +1,12 @@
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Reservation } from '../entities/reservation.entity';
 import { AppLogger } from 'src/common/logger/app-logger.service';
 import { GenericError } from 'src/common/errors/generic.error';
+import { GetPendingReservationsPayload } from 'src/modules/reservation/interfaces/get-pending-reservations-payload.interface';
+import { ReservationStatus } from '../enums/reservation-status.enum';
 
 @Injectable()
 export class ReservationRepository {
@@ -19,7 +21,7 @@ export class ReservationRepository {
    * Create a new reservation
    * @param reservation
    */
-  public async createReservation(reservation: Omit<Reservation, 'id'>) {
+  public async createReservation(reservation: DeepPartial<Reservation>) {
     try {
       this.logger.log(`Creating a new reservation for ${reservation.name}`);
 
@@ -35,5 +37,22 @@ export class ReservationRepository {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  public async getPendingReservations(payload: GetPendingReservationsPayload) {
+    this.logger.log(`Get pending reservations from DB `);
+
+    const { organizationId, branchId } = payload;
+
+    const reservations = await this.repository.find({
+      where: {
+        status: ReservationStatus.Pending,
+        organizationId,
+        ...(branchId && { branchId }),
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    return reservations;
   }
 }
