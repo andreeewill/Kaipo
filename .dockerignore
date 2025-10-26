@@ -1,0 +1,32 @@
+# Ignore dependencies and build outputs from the host
+node_modules
+.pnpm-store
+pnpm-store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build artifacts
+.dist
+dist
+coverage
+
+# Local env/config
+.env
+.env.*
+.keystore
+
+# VCS & editor
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+
+# Docker
+Dockerfile
+.dockerignore
+
+# OS noise
+.DS_Store

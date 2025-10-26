@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kaipo
+description: Helm chart for Kaipo NestJS service
+version: 0.1.0
+appVersion: '0.0.1'
+type: application

@@ -1,0 +1,52 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/andreeewill/kaipo
+  tag: 'latest'
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+container:
+  port: 3000
+  env: []
+  # - name: NODE_ENV
+  #   value: production
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []
+
+fullnameOverride: kaipo
