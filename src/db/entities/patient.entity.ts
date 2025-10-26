@@ -23,6 +23,9 @@ export class Patient {
   @Column({ comment: 'Nomor Kartu Keluarga', nullable: true })
   kkNumber?: string;
 
+  @Column({ nullable: true, comment: 'Nomor rekam medis' })
+  rmNumber?: string;
+
   @Column({ nullable: false })
   name: string;
 

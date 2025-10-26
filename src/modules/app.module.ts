@@ -18,7 +18,7 @@ import { LoggerModule } from '../common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
 import { RequestModule } from '../common/request/request.module';
 import { DbModule } from '../db/db.module';
-import { AppointmentModule } from './appointment/appointment.module';
+import { EncounterModule } from './encounter/encounter.module';
 import { PatientModule } from './patient/patient.module';
 import { EmrModule } from './medical-record/emr.module';
 
@@ -69,7 +69,7 @@ import { ReservationModule } from './reservation/reservation.module';
     UtilModule,
     AdminModule,
     AuthModule,
-    AppointmentModule,
+    EncounterModule,
     BasicModule,
     CasbinModule,
     OwnerModule,
