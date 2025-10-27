@@ -27,14 +27,14 @@ WORKDIR /app
 FROM base AS deps
 
 # Optional: keep pnpm store outside project to leverage layer cache
-RUN pnpm config set store-dir /pnpm-store
+## Using BuildKit cache mounts instead of committing store into the image
 
 # Only copy lockfile + manifest first to maximize caching
 COPY package.json pnpm-lock.yaml ./
 
 # Pre-fetch all deps (incl. dev) into the store based solely on lockfile
 # This avoids re-resolving when app sources change
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm fetch
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm fetch --store-dir=/pnpm-store
 
 
 # ---------- Build stage ----------
@@ -44,9 +44,8 @@ FROM base AS build
 RUN apk add --no-cache --virtual .build-deps python3 make g++
 
 # Reuse the fetched store for a fast, offline install
-COPY --from=deps /pnpm-store /pnpm-store
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm install --offline
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm install --offline --store-dir=/pnpm-store
 
 # Bring in the full application source
 COPY . .

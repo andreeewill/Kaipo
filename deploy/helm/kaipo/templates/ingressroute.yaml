@@ -1,0 +1,27 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "kaipo.fullname" . }}-ingressroute
+  labels:
+    app: {{ include "kaipo.name" . }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  {{- range .Values.ingress.hosts }}
+    - match: Host(`{{ .host }}`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: {{ include "kaipo.fullname" $ }}
+          port: {{ $.Values.service.port }}
+  {{- end }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    secretName: {{ .Values.ingress.tls.secretName }}
+  {{- else }}
+  tls: {}
+  {{- end }}
+{{- end }}
