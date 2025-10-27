@@ -83,6 +83,34 @@ jobs:
           curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cf.deb
           sudo dpkg -i cf.deb
 
+      - name: Prepare SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          install -m 700 -d ~/.ssh
+
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_kaipo_uat
+          chmod 600 ~/.ssh/id_rsa_kaipo_uat
+
+          # Create SSH config with keep-alive settings
+          cat >> ~/.ssh/config <<EOF
+          Host pi-over-cf
+            HostName 127.0.0.1
+            Port 2222
+            User ${SSH_USER}
+            IdentityFile ~/.ssh/id_rsa_kaipo_uat
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ServerAliveInterval 30
+            ServerAliveCountMax 3
+            TCPKeepAlive yes
+            Compression yes
+          EOF
+
+          echo "SSH config created:"
+          cat ~/.ssh/config
+
       - name: Open SSH tunnel via Cloudflare Tunnel
         env:
           SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
@@ -111,39 +139,11 @@ jobs:
 
           # Test SSH connection before proceeding
           echo "Testing SSH connection..."
-          ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no pi-over-cf "echo 'SSH connection successful'" || {
+          ssh -o ConnectTimeout=10 pi-over-cf "echo 'SSH connection successful'" || {
             echo "❌ SSH test failed!"
             cat /tmp/cloudflared.log
             exit 1
           }
-
-      - name: Prepare SSH key
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          install -m 700 -d ~/.ssh
-
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_kaipo_uat
-          chmod 600 ~/.ssh/id_rsa_kaipo_uat
-
-          # Create SSH config with keep-alive settings
-          cat >> ~/.ssh/config <<EOF
-          Host pi-over-cf
-            HostName 127.0.0.1
-            Port 2222
-            User ${SSH_USER}
-            IdentityFile ~/.ssh/id_rsa_kaipo_uat
-            StrictHostKeyChecking no
-            UserKnownHostsFile /dev/null
-            ServerAliveInterval 30
-            ServerAliveCountMax 3
-            TCPKeepAlive yes
-            Compression yes
-          EOF
-
-          echo "SSH config created:"
-          cat ~/.ssh/config
 
       - name: Build Helm values from environment secrets
         env:
