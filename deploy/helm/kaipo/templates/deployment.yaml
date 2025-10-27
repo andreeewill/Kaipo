@@ -25,12 +25,22 @@ spec:
           image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           imagePullPolicy: { { .Values.image.pullPolicy } }
           ports:
+        {{- if .Values.image.pullSecrets }}
+        imagePullSecrets:
+          {{- toYaml .Values.image.pullSecrets | nindent 8 }}
+        {{- end }}
             - containerPort: { { .Values.container.port } }
               name: http
           env: { { - toYaml .Values.container.env | nindent 12 } }
           securityContext: { { - toYaml .Values.securityContext | nindent 12 } }
           livenessProbe:
             httpGet:
+            {{- if .Values.secret.enabled }}
+            {{- $secretName := default (printf "%s-secret" (include "kaipo.fullname" .)) .Values.secret.name }}
+            envFrom:
+              - secretRef:
+                  name: {{ $secretName }}
+            {{- end }}
               path: { { .Values.probes.liveness.path } }
               port: http
             initialDelaySeconds:

@@ -4,6 +4,9 @@ image:
   repository: ghcr.io/andreeewill/kaipo
   tag: 'latest'
   pullPolicy: IfNotPresent
+  # Optionally reference registry pull secrets (for private images)
+  pullSecrets: []
+  # - name: ghcr-pull
 
 service:
   type: ClusterIP
@@ -32,6 +35,25 @@ container:
   env: []
   # - name: NODE_ENV
   #   value: production
+
+# Kubernetes Secret to inject sensitive env values
+secret:
+  enabled: false
+  # name: "" # defaults to <fullname>-secret when empty
+  data: {}
+  # DB_URL: postgres://user:pass@host:5432/db
+  # JWT_SECRET: super-secret
+
+ingress:
+  enabled: true
+  hosts:
+    - host: api.kaipo.my.id
+  annotations:
+    # optional: add middlewares here
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  tls:
+    enabled: false
+    secretName: kaipo-tls
 
 probes:
   liveness:

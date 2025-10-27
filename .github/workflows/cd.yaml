@@ -18,6 +18,10 @@ env:
 
 jobs:
   build-push-deploy:
+    environment: kaipo-uat
+    concurrency:
+      group: deploy-kaipo-uat
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -86,14 +90,52 @@ jobs:
         run: |
           install -m 700 -d ~/.ssh
 
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_kaipo_uat
+          chmod 600 ~/.ssh/id_rsa_kaipo_uat
 
-          printf "Host pi-over-cf\n  HostName 127.0.0.1\n  Port 2222\n  User %s\n  IdentityFile ~/.ssh/id_ed25519\n  StrictHostKeyChecking no\n" "$SSH_USER" >> ~/.ssh/config
+          printf "Host pi-over-cf\n  HostName 127.0.0.1\n  Port 2222\n  User %s\n  IdentityFile ~/.ssh/id_rsa_kaipo_uat\n  StrictHostKeyChecking no\n" "$SSH_USER" >> ~/.ssh/config
+
+      - name: Build Helm values from environment secrets
+        env:
+          # Environment-scoped vars/secrets (set these in your kaipo-uat environment)
+          APP_ENV: ${{ vars.APP_ENV }}
+          DB_URL: ${{ secrets.DB_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          API_HOST: ${{ vars.API_HOST }}
+          INGRESS_TLS: ${{ vars.INGRESS_TLS }}
+          INGRESS_TLS_SECRET: ${{ secrets.INGRESS_TLS_SECRET }}
+        run: |
+          # Create a Helm override file containing sensitive and env-specific values
+          # Note: This writes secrets to a local file but does not print them to logs
+
+          cat > values-override.yaml <<EOF
+
+          secret:
+            enabled: true
+            data:
+              DB_URL: "${DB_URL}"
+              JWT_SECRET: "${JWT_SECRET}"
+
+          container:
+            env:
+              - name: APP_ENV
+                value: "${APP_ENV}"
+
+          ingress:
+            enabled: true
+            hosts:
+              - host: "${API_HOST:-api.kaipo.my.id}"
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            tls:
+              enabled: ${INGRESS_TLS:-false}
+              secretName: "${INGRESS_TLS_SECRET:-kaipo-tls}"
+          EOF
 
       - name: Copy Helm chart to the Pi
         run: |
           rsync -avz --delete "${CHART_PATH}/" pi-over-cf:~/kaipo-chart/
+          rsync -avz values-override.yaml pi-over-cf:~/kaipo-chart/
 
       - name: Remote deploy with Helm (on the Pi)
         env:
@@ -122,6 +164,7 @@ jobs:
             # Use k3s kubeconfig by running helm with sudo + KUBECONFIG
             sudo env KUBECONFIG=/etc/rancher/k3s/k3s.yaml helm upgrade --install "${RELEASE_NAME}" "${REMOTE_CHART_DIR}" \
               --namespace "${NAMESPACE}" --create-namespace \
+              -f "${REMOTE_CHART_DIR}/values-override.yaml" \
               --set image.repository="${IMAGE_REPO}" \
               --set image.tag="${IMAGE_TAG}" \
               --set image.pullPolicy=IfNotPresent
