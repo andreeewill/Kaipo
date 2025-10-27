@@ -45,6 +45,8 @@ RUN apk add --no-cache --virtual .build-deps python3 make g++
 
 # Reuse the fetched store for a fast, offline install
 COPY package.json pnpm-lock.yaml ./
+## Ensure the store contains all tarballs for this platform (multi-arch safe)
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm fetch --store-dir=/pnpm-store
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store pnpm install --offline --store-dir=/pnpm-store
 
 # Bring in the full application source
