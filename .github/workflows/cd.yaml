@@ -17,12 +17,12 @@ env:
   NAMESPACE: kaipo
 
 jobs:
-  build-push-deploy:
-    environment: kaipo-uat
-    concurrency:
-      group: deploy-kaipo-uat
-      cancel-in-progress: true
+  build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      short-sha: ${{ steps.meta.outputs.SHORT_SHA }}
+      version: ${{ steps.meta.outputs.VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,6 +66,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  deploy-to-k3s:
+    name: Deploy to k3s on Raspberry Pi
+    needs: build-and-push
+    environment: kaipo-uat
+    concurrency:
+      group: deploy-kaipo-uat
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install cloudflared
         run: |
           curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cf.deb
@@ -77,8 +89,23 @@ jobs:
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
         run: |
+          # Debug: Check if credentials are set (without revealing values)
+          if [ -z "$CF_ACCESS_CLIENT_ID" ]; then
+            echo "⚠️  WARNING: CF_ACCESS_CLIENT_ID is NOT set"
+          else
+            echo "✓ CF_ACCESS_CLIENT_ID is set"
+          fi
+
+          if [ -z "$CF_ACCESS_CLIENT_SECRET" ]; then
+            echo "⚠️  WARNING: CF_ACCESS_CLIENT_SECRET is NOT set"
+          else
+            echo "✓ CF_ACCESS_CLIENT_SECRET is set"
+          fi
+
           # Start a local listener on 127.0.0.1:2222 that forwards to your SSH app
+          # cloudflared will automatically read CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET from environment
           nohup cloudflared access tcp --hostname "$SSH_HOSTNAME" --listener 127.0.0.1:2222 >/dev/null 2>&1 &
+
           # Wait until the port is up
           for i in $(seq 1 30); do nc -z 127.0.0.1 2222 && break || sleep 1; done
           nc -z 127.0.0.1 2222
@@ -139,7 +166,7 @@ jobs:
 
       - name: Remote deploy with Helm (on the Pi)
         env:
-          SHORT_SHA: ${{ steps.meta.outputs.SHORT_SHA }}
+          SHORT_SHA: ${{ needs.build-and-push.outputs.short-sha }}
         run: |
           ssh pi-over-cf "REGISTRY='${REGISTRY}' IMAGE_NAME='${IMAGE_NAME}' SHORT_SHA='${SHORT_SHA}' RELEASE_NAME='${RELEASE_NAME}' NAMESPACE='${NAMESPACE}' REMOTE_CHART_DIR='~/kaipo-chart' bash -s" <<'EOF'
             set -euo pipefail
