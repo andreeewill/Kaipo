@@ -67,7 +67,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-to-k3s:
-    name: Deploy to k3s on Raspberry Pi
+    name: K3s Deployment
     needs: build-and-push
     environment: kaipo-uat
     concurrency:
@@ -83,32 +83,39 @@ jobs:
           curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cf.deb
           sudo dpkg -i cf.deb
 
-      - name: Open SSH tunnel via Cloudflare Access
+      - name: Open SSH tunnel via Cloudflare Tunnel
         env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
         run: |
-          # Debug: Check if credentials are set (without revealing values)
-          if [ -z "$CF_ACCESS_CLIENT_ID" ]; then
-            echo "⚠️  WARNING: CF_ACCESS_CLIENT_ID is NOT set"
-          else
-            echo "✓ CF_ACCESS_CLIENT_ID is set"
-          fi
-
-          if [ -z "$CF_ACCESS_CLIENT_SECRET" ]; then
-            echo "⚠️  WARNING: CF_ACCESS_CLIENT_SECRET is NOT set"
-          else
-            echo "✓ CF_ACCESS_CLIENT_SECRET is set"
-          fi
-
-          # Start a local listener on 127.0.0.1:2222 that forwards to your SSH app
-          # cloudflared will automatically read CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET from environment
-          nohup cloudflared access tcp --hostname "$SSH_HOSTNAME" --listener 127.0.0.1:2222 >/dev/null 2>&1 &
+          # Start a local listener on 127.0.0.1:2222 that forwards to SSH via Cloudflare Tunnel
+          # No CF_ACCESS credentials needed since the tunnel is in direct mode (no Access protection)
+          nohup cloudflared access tcp --hostname "$SSH_HOSTNAME" --listener 127.0.0.1:2222 > /tmp/cloudflared.log 2>&1 &
+          TUNNEL_PID=$!
+          echo "Tunnel PID: $TUNNEL_PID"
 
           # Wait until the port is up
-          for i in $(seq 1 30); do nc -z 127.0.0.1 2222 && break || sleep 1; done
-          nc -z 127.0.0.1 2222
+          for i in $(seq 1 30); do
+            if nc -z 127.0.0.1 2222; then
+              echo "✓ Tunnel ready on port 2222"
+              break
+            fi
+            sleep 1
+          done
+
+          # Verify tunnel is actually working
+          if ! nc -z 127.0.0.1 2222; then
+            echo "❌ Tunnel failed to start!"
+            cat /tmp/cloudflared.log
+            exit 1
+          fi
+
+          # Test SSH connection before proceeding
+          echo "Testing SSH connection..."
+          ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no pi-over-cf "echo 'SSH connection successful'" || {
+            echo "❌ SSH test failed!"
+            cat /tmp/cloudflared.log
+            exit 1
+          }
 
       - name: Prepare SSH key
         env:
@@ -120,7 +127,23 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_kaipo_uat
           chmod 600 ~/.ssh/id_rsa_kaipo_uat
 
-          printf "Host pi-over-cf\n  HostName 127.0.0.1\n  Port 2222\n  User %s\n  IdentityFile ~/.ssh/id_rsa_kaipo_uat\n  StrictHostKeyChecking no\n" "$SSH_USER" >> ~/.ssh/config
+          # Create SSH config with keep-alive settings
+          cat >> ~/.ssh/config <<EOF
+          Host pi-over-cf
+            HostName 127.0.0.1
+            Port 2222
+            User ${SSH_USER}
+            IdentityFile ~/.ssh/id_rsa_kaipo_uat
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ServerAliveInterval 30
+            ServerAliveCountMax 3
+            TCPKeepAlive yes
+            Compression yes
+          EOF
+
+          echo "SSH config created:"
+          cat ~/.ssh/config
 
       - name: Build Helm values from environment secrets
         env:
@@ -161,8 +184,13 @@ jobs:
 
       - name: Copy Helm chart to the Pi
         run: |
-          rsync -avz --delete "${CHART_PATH}/" pi-over-cf:~/kaipo-chart/
-          rsync -avz values-override.yaml pi-over-cf:~/kaipo-chart/
+          echo "📦 Copying Helm chart to Raspberry Pi..."
+          rsync -avz --delete --progress "${CHART_PATH}/" pi-over-cf:~/kaipo-chart/
+
+          echo "📦 Copying values override file..."
+          rsync -avz --progress values-override.yaml pi-over-cf:~/kaipo-chart/
+
+          echo "✓ Files copied successfully"
 
       - name: Remote deploy with Helm (on the Pi)
         env:
